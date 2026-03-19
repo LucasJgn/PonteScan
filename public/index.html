@@ -899,6 +899,7 @@ let lohmannWorkbook = null;
 let lohmannFilename = null;
 let lohmannTargetRow = null;
 let lohmannSheetName = null;
+let lohmannFileBase64 = null;
  
 document.getElementById('lohmannInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
@@ -907,7 +908,10 @@ document.getElementById('lohmannInput').addEventListener('change', function(e) {
   const reader = new FileReader();
   reader.onload = ev => {
     try {
-      lohmannWorkbook = XLSX.read(ev.target.result, { type: 'array', cellDates: true });
+      // Stocker le base64 pour envoi au serveur Python
+      lohmannFileBase64 = btoa(String.fromCharCode(...new Uint8Array(ev.target.result)));
+      // Lire avec SheetJS uniquement pour trouver la ligne
+      lohmannWorkbook = XLSX.read(ev.target.result, { type: 'array', cellDates: true, cellStyles: true });
       findLohmannRow();
     } catch(err) {
       showLohmannStatus('error', '❌ Impossible de lire ce fichier Excel');
@@ -980,62 +984,79 @@ function cancelInject() {
   lohmannWorkbook = null;
   lohmannFilename = null;
   lohmannTargetRow = null;
+  lohmannFileBase64 = null;
   showLohmannStatus('ok', 'ℹ️ Injection annulée — réimportez votre fichier si besoin');
 }
  
-function confirmInject() {
-  if (!lohmannWorkbook || lohmannTargetRow === null) return;
+async function confirmInject() {
+  if (!lohmannFileBase64 || lohmannTargetRow === null) return;
  
-  const ws = lohmannWorkbook.Sheets[lohmannSheetName];
-  const row = lohmannTargetRow + 1; // XLSX est 1-indexé
+  const btn = document.querySelector('#section-confirm .btn-primary');
+  btn.disabled = true;
+  btn.textContent = '⏳ Injection en cours…';
  
-  const jours = DAYS.map((_, i) => ({
-    ponte_total: getVal(`j_total_${i}`) || 0
-  }));
- 
+  const jours = DAYS.map((_, i) => getVal(`j_total_${i}`) || 0);
   const totalMort = DAYS.reduce((s, _, i) => s + (getVal(`j_mortalite_${i}`) || 0), 0);
-  const totalTotal = jours.reduce((s, j) => s + j.ponte_total, 0);
+  const totalTotal = jours.reduce((s, v) => s + v, 0);
   const totalDeclasses = DAYS.reduce((s, _, i) => s + (getVal(`j_declasses_${i}`) || 0), 0);
   const totalEau = DAYS.reduce((s, _, i) => s + (getVal(`j_eau_${i}`) || 0), 0);
   const totalAliment = DAYS.reduce((s, _, i) => s + (getVal(`j_aliment_${i}`) || 0), 0);
-  const livraison = getVal('f_livraison');
  
-  const setCell = (col, val) => {
-    if (val === null || val === undefined || val === '') return;
-    ws[col + row] = { v: val, t: typeof val === 'number' ? 'n' : 's' };
+  const values = {
+    mortalite: totalMort || null,
+    effectif_fin: getVal('f_effectif_fin'),
+    ponte_j1: jours[0] || null,
+    ponte_j2: jours[1] || null,
+    ponte_j3: jours[2] || null,
+    ponte_j4: jours[3] || null,
+    ponte_j5: jours[4] || null,
+    ponte_j6: jours[5] || null,
+    ponte_j7: jours[6] || null,
+    ponte_hebdo: totalTotal || null,
+    declasses: totalDeclasses || null,
+    conso_aliment_kg: totalAliment > 0 ? totalAliment : null,
+    conso_eau_L: totalEau > 0 ? totalEau : null,
+    poids_oeufs: getVal('f_poids_oeufs') || null,
+    poids_vif: getVal('f_pesee_poids') ? getVal('f_pesee_poids') * 1000 : null,
+    homogeneite: getVal('f_pesee_homo') || null,
+    observations: document.getElementById('f_observations').value || null
   };
  
-  // Injection Lohmann — données essentielles
-  setCell('D', totalMort || null);
-  setCell('G', getVal('f_effectif_fin'));
-  const ponteCols = ['H','I','J','K','L','M','N'];
-  jours.forEach((j, i) => setCell(ponteCols[i], j.ponte_total || null));
-  setCell('P', totalTotal || null);
-  setCell('W', totalDeclasses || null);
-  setCell('AM', totalAliment > 0 ? totalAliment : null);
-  setCell('AY', totalEau > 0 ? totalEau : null);
-  // Optionnel — injecté seulement si renseigné sur la fiche
-  if (getVal('f_poids_oeufs')) setCell('AB', getVal('f_poids_oeufs'));
-  if (getVal('f_pesee_poids')) setCell('AV', getVal('f_pesee_poids') * 1000);
-  if (getVal('f_pesee_homo')) setCell('AW', getVal('f_pesee_homo'));
-  if (document.getElementById('f_observations').value) setCell('BF', document.getElementById('f_observations').value);
+  try {
+    const response = await fetch('/api/inject', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileBase64: lohmannFileBase64,
+        age: getVal('f_age'),
+        values
+      })
+    });
  
-  // Générer et télécharger
-  const age = getVal('f_age');
-  const dateFin = document.getElementById('f_date_fin').value;
-  const filename = lohmannFilename.replace('.xlsx', `_S${age}_rempli.xlsx`);
-  const wbout = XLSX.write(lohmannWorkbook, { bookType: 'xlsx', type: 'array' });
-  const blob = new Blob([wbout], { type: 'application/octet-stream' });
-  const url = URL.createObjectURL(blob);
+    const data = await response.json();
+    if (!response.ok || data.error) throw new Error(data.error || 'Erreur serveur');
  
-  document.getElementById('downloadLink').href = url;
-  document.getElementById('downloadLink').download = filename;
-  document.getElementById('successSub').textContent =
-    `Semaine âge ${age||'?'} · ${totalTotal.toLocaleString('fr')} œufs · Ligne ${lohmannTargetRow+1} remplie`;
+    // Télécharger le fichier retourné
+    const bytes = Uint8Array.from(atob(data.fileBase64), c => c.charCodeAt(0));
+    const blob = new Blob([bytes], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const age = getVal('f_age');
+    const filename = lohmannFilename.replace('.xlsx', `_S${age}_rempli.xlsx`);
  
-  showSection('section-success');
-  updateSteps(3);
-  document.getElementById('step3').className = 'step done';
+    document.getElementById('downloadLink').href = url;
+    document.getElementById('downloadLink').download = filename;
+    document.getElementById('successSub').textContent =
+      `Semaine âge ${age||'?'} · ${totalTotal.toLocaleString('fr')} œufs · Ligne ${data.rowFound} remplie`;
+ 
+    showSection('section-success');
+    updateSteps(3);
+    document.getElementById('step3').className = 'step done';
+ 
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = '✅ Confirmer et télécharger';
+    showLohmannStatus('error', '❌ Erreur injection : ' + err.message);
+  }
 }
  
 buildTable();
