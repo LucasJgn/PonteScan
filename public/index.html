@@ -618,7 +618,13 @@ function populateForm(d) {
     set('f_pesee_homo', r.pesee_poules_homogeneite_pct);
   }
  
-  // Calcul automatique des résultats techniques depuis le tableau journalier
+  // Mettre en évidence les champs vides pour que l'éleveur les remplisse
+  document.querySelectorAll('.data-input, td input').forEach(el => {
+    if (el.value === '' || el.value === null) {
+      el.style.borderBottom = '2px solid var(--warn)';
+      el.placeholder = 'À remplir';
+    }
+  });
   if (d.jours && d.jours.length === 7) {
     const effectif = d.effectif_debut || 6572;
     const joursRemplis = d.jours.filter(j => j.ponte_total !== null);
