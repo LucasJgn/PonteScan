@@ -542,8 +542,16 @@
           <div class="data-label">Conso aliment (g/j/poule)</div>
           <input class="data-input" id="f_conso_aliment" type="number" step="0.1" placeholder="—">
         </div>
+        <div class="data-cell full-width">
+          <div class="data-label">Effectif mise en place (début de lot)</div>
+          <input class="data-input" id="f_effectif_depart" type="number" placeholder="—" oninput="recalcOeufsPoule()">
+        </div>
+        <div class="data-cell full-width">
+          <div class="data-label">Cumul ponte lot (total depuis mise en place)</div>
+          <input class="data-input" id="f_cumul_ponte_lot" type="number" placeholder="—" oninput="recalcOeufsPoule()">
+        </div>
         <div class="data-cell">
-          <div class="data-label">Nb œufs / poule départ</div>
+          <div class="data-label">Nb œufs / poule départ <span style="color:var(--muted);font-size:9px;">AUTO</span></div>
           <input class="data-input" id="f_oeufs_poule" type="number" step="0.01" placeholder="—">
         </div>
         <div class="data-cell">
@@ -916,6 +924,13 @@ function populateForm(d) {
     set('f_pesee_homo', r.pesee_poules_homogeneite_pct);
   }
 
+  // Pré-remplir effectif départ depuis localStorage si connu
+  const savedEffectif = localStorage.getItem('pontescan_effectif_depart');
+  if (savedEffectif) {
+    const el = document.getElementById('f_effectif_depart');
+    if (el && !el.value) el.value = savedEffectif;
+  }
+
   // Mettre en évidence les champs vides pour que l'éleveur les remplisse
   document.querySelectorAll('.data-input, td input').forEach(el => {
     if (el.value === '' || el.value === null) {
@@ -996,9 +1011,25 @@ function populateForm(d) {
     }
 
     // Calcul oeufs/poule depuis cumul lot
-    if (d.ponte_cumul_lot && effectif > 0) {
-      set('f_oeufs_poule', (d.ponte_cumul_lot / effectif).toFixed(3));
+    if (d.ponte_cumul_lot) {
+      const el = document.getElementById('f_cumul_ponte_lot');
+      if (el) el.value = d.ponte_cumul_lot;
+      // Utiliser effectif départ si renseigné, sinon effectif début semaine
+      const effectifDepart = getVal('f_effectif_depart') || effectif;
+      if (effectifDepart > 0) {
+        set('f_oeufs_poule', (d.ponte_cumul_lot / effectifDepart).toFixed(3));
+      }
     }
+  }
+}
+
+function recalcOeufsPoule() {
+  const cumul = getVal('f_cumul_ponte_lot');
+  const effectifDepart = getVal('f_effectif_depart');
+  // Mémoriser l'effectif départ pour les prochaines saisies
+  if (effectifDepart) localStorage.setItem('pontescan_effectif_depart', effectifDepart);
+  if (cumul && effectifDepart > 0) {
+    document.getElementById('f_oeufs_poule').value = (cumul / effectifDepart).toFixed(3);
   }
 }
 
