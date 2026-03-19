@@ -856,7 +856,7 @@ function generateExcel() {
   ws2Data.push(['P (Ponte hebdo)', totalTotal, 'Total ponte semaine']);
   ws2Data.push(['W (Décl. élevage)', totalDeclasses, 'Déclassés élevage']);
   ws2Data.push(['AB (PO Semaine)', resultats.poids_oeufs, 'Poids moyen œufs (g)']);
-  ws2Data.push(['AM (Livraison kg)', livraison ? livraison * 1000 : '', 'Livraison aliment (kg)']);
+  ws2Data.push(['AM (Conso aliment kg)', totalAliment.toFixed(1), 'Consommation aliment semaine (kg)']);
   ws2Data.push(['AP (Conso g/j/PP)', resultats.conso_aliment, 'Conso aliment g/j/poule']);
   ws2Data.push(['AV (Poids vif g)', resultats.pesee_poids ? resultats.pesee_poids * 1000 : '', 'Poids vif (g)']);
   ws2Data.push(['AW (Homogénéité %)', resultats.pesee_homo, 'Homogénéité (%)']);
@@ -961,7 +961,7 @@ function findLohmannRow() {
   document.getElementById('confirmDetail').innerHTML =
     `Date dans le fichier : <strong style="color:var(--accent)">${dateStr}</strong><br>` +
     `Date extraite de la fiche : <strong style="color:var(--accent)">${dateFin || '—'}</strong><br><br>` +
-    `Les colonnes suivantes seront remplies : D (mortalité), G (effectif fin), H→N (ponte J1-J7), P (hebdo), W (déclassés), AB (poids œufs), AM (livraison), AP (conso aliment), AV (poids vif), AW (homo), AY (eau), BF (observations)`;
+    `Les colonnes remplies : D (mortalité), G (effectif fin), H→N (ponte J1-J7), P (ponte hebdo), W (déclassés), AM (conso aliment kg), AY (conso eau L). Si renseignés : AB (poids œufs), AV (poids vif), AW (homogénéité), BF (observations)`;
  
   document.getElementById('section-confirm').classList.remove('hidden');
   showLohmannStatus('ok', `✅ Ligne ${foundRow + 1} identifiée — vérifiez et confirmez ci-dessous`);
@@ -1005,20 +1005,20 @@ function confirmInject() {
     ws[col + row] = { v: val, t: typeof val === 'number' ? 'n' : 's' };
   };
  
-  // Injection selon le mapping Lohmann V25.1
-  setCell('D', totalMort);
+  // Injection Lohmann — données essentielles
+  setCell('D', totalMort || null);
   setCell('G', getVal('f_effectif_fin'));
   const ponteCols = ['H','I','J','K','L','M','N'];
-  jours.forEach((j, i) => setCell(ponteCols[i], j.ponte_total));
-  setCell('P', totalTotal);
-  setCell('W', totalDeclasses);
-  setCell('AB', getVal('f_poids_oeufs'));
-  setCell('AM', livraison ? livraison * 1000 : null);
-  setCell('AP', getVal('f_conso_aliment'));
-  setCell('AV', getVal('f_pesee_poids') ? getVal('f_pesee_poids') * 1000 : null);
-  setCell('AW', getVal('f_pesee_homo'));
-  setCell('AY', totalEau);
-  setCell('BF', document.getElementById('f_observations').value || null);
+  jours.forEach((j, i) => setCell(ponteCols[i], j.ponte_total || null));
+  setCell('P', totalTotal || null);
+  setCell('W', totalDeclasses || null);
+  setCell('AM', totalAliment > 0 ? totalAliment : null);
+  setCell('AY', totalEau > 0 ? totalEau : null);
+  // Optionnel — injecté seulement si renseigné sur la fiche
+  if (getVal('f_poids_oeufs')) setCell('AB', getVal('f_poids_oeufs'));
+  if (getVal('f_pesee_poids')) setCell('AV', getVal('f_pesee_poids') * 1000);
+  if (getVal('f_pesee_homo')) setCell('AW', getVal('f_pesee_homo'));
+  if (document.getElementById('f_observations').value) setCell('BF', document.getElementById('f_observations').value);
  
   // Générer et télécharger
   const age = getVal('f_age');
