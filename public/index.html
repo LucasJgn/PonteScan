@@ -19,9 +19,9 @@
     --warn: #f0a030;
     --error: #f05858;
   }
-
+ 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
   body {
     background: var(--bg);
     color: var(--text);
@@ -29,7 +29,7 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
-
+ 
   body::before {
     content: '';
     position: fixed;
@@ -41,7 +41,7 @@
     pointer-events: none;
     z-index: 0;
   }
-
+ 
   .app {
     position: relative;
     z-index: 1;
@@ -49,7 +49,7 @@
     margin: 0 auto;
     padding: 24px 20px 60px;
   }
-
+ 
   header {
     display: flex;
     align-items: center;
@@ -58,7 +58,7 @@
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border);
   }
-
+ 
   .logo { display: flex; align-items: center; gap: 12px; }
   .logo-icon {
     width: 40px; height: 40px;
@@ -81,12 +81,12 @@
     color: var(--muted);
     padding: 4px 10px; border-radius: 20px;
   }
-
+ 
   .steps { display: flex; gap: 6px; margin-bottom: 32px; }
   .step { flex: 1; height: 3px; background: var(--surface2); border-radius: 2px; transition: background 0.4s; }
   .step.active { background: var(--accent); }
   .step.done { background: var(--accent2); }
-
+ 
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -100,7 +100,7 @@
     margin-bottom: 4px; font-family: 'DM Mono', monospace;
   }
   .card-heading { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
-
+ 
   .upload-zone {
     border: 2px dashed var(--border);
     border-radius: 12px; padding: 40px 20px;
@@ -118,11 +118,11 @@
   .upload-icon { font-size: 48px; margin-bottom: 12px; display: block; }
   .upload-text { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
   .upload-hint { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
-
+ 
   .preview-wrapper { position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
   .preview-wrapper img { width: 100%; display: block; border-radius: 12px; }
   .preview-overlay { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
-
+ 
   .btn {
     display: inline-flex; align-items: center; gap: 8px;
     font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
@@ -150,7 +150,7 @@
     width: 100%; justify-content: center; font-size: 15px; padding: 14px;
   }
   .btn-success:hover { filter: brightness(1.1); }
-
+ 
   .loading-state { text-align: center; padding: 40px 20px; }
   .spinner {
     width: 48px; height: 48px;
@@ -161,7 +161,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
   .loading-sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
-
+ 
   .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
   .data-cell {
     background: var(--surface2); border: 1px solid var(--border);
@@ -178,7 +178,7 @@
     width: 100%; outline: none; padding: 0;
   }
   .data-input:focus { color: var(--accent); }
-
+ 
   .table-scroll {
     overflow-x: auto; margin-bottom: 16px;
     border-radius: 10px; border: 1px solid var(--border);
@@ -199,7 +199,7 @@
   }
   td input:focus { border-color: var(--accent); background: rgba(184,240,88,0.05); color: var(--accent); }
   .jour-label { color: var(--accent); font-weight: 500; font-size: 11px; }
-
+ 
   .info-box {
     background: rgba(184,240,88,0.06); border: 1px solid rgba(184,240,88,0.2);
     border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
@@ -217,16 +217,16 @@
     border-radius: 10px; padding: 16px; color: var(--error);
     font-family: 'DM Mono', monospace; font-size: 12px; margin-bottom: 16px;
   }
-
+ 
   .section-sep {
     font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted);
     text-transform: uppercase; letter-spacing: 2px;
     margin: 20px 0 12px; display: flex; align-items: center; gap: 10px;
   }
   .section-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
+ 
   .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
+ 
   .success-state { text-align: center; padding: 20px; }
   .success-icon {
     font-size: 64px; margin-bottom: 16px; display: block;
@@ -235,11 +235,11 @@
   @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .success-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
   .success-sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 28px; }
-
+ 
   .hidden { display: none !important; }
   .fade-in { animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
+ 
   @media (max-width: 480px) {
     .data-grid { grid-template-columns: 1fr; }
     .tech-grid { grid-template-columns: 1fr; }
@@ -248,7 +248,7 @@
 </head>
 <body>
 <div class="app">
-
+ 
   <header>
     <div class="logo">
       <div class="logo-icon">🥚</div>
@@ -259,13 +259,13 @@
     </div>
     <div class="badge">V1.0</div>
   </header>
-
+ 
   <div class="steps">
     <div class="step active" id="step1"></div>
     <div class="step" id="step2"></div>
     <div class="step" id="step3"></div>
   </div>
-
+ 
   <!-- ÉTAPE 1 : Upload -->
   <div id="section-upload" class="fade-in">
     <div class="card">
@@ -283,7 +283,7 @@
       <div>Photographiez la fiche hebdomadaire remplie. L'IA va extraire toutes les données automatiquement.</div>
     </div>
   </div>
-
+ 
   <!-- ÉTAPE 2 : Chargement -->
   <div id="section-loading" class="hidden fade-in">
     <div class="card">
@@ -294,22 +294,22 @@
       </div>
     </div>
   </div>
-
+ 
   <!-- ÉTAPE 3 : Vérification -->
   <div id="section-verify" class="hidden fade-in">
     <div class="card">
       <div class="card-title">Étape 2 / 3</div>
       <div class="card-heading">Vérifier & corriger</div>
-
+ 
       <div id="errorBox" class="error-box hidden"></div>
-
+ 
       <div class="preview-wrapper">
         <img id="photoPreview" src="" alt="Photo analysée">
         <div class="preview-overlay">
           <button class="btn btn-ghost" onclick="resetApp()">↩ Nouvelle photo</button>
         </div>
       </div>
-
+ 
       <div class="section-sep">Informations semaine</div>
       <div class="data-grid">
         <div class="data-cell">
@@ -349,7 +349,7 @@
           <input class="data-input" id="f_tours_chaine" type="text" placeholder="—">
         </div>
       </div>
-
+ 
       <div class="section-sep">Production journalière</div>
       <div class="table-scroll">
         <table>
@@ -363,7 +363,7 @@
           <tbody id="tableBody"></tbody>
         </table>
       </div>
-
+ 
       <div class="section-sep">Résultats techniques</div>
       <div class="tech-grid">
         <div class="data-cell">
@@ -404,17 +404,17 @@
         </div>
       </div>
     </div>
-
+ 
     <div class="warn-box">
       <span>⚠️</span>
       <div>Vérifiez les valeurs avant de générer le fichier. Modifiez directement dans les champs si besoin.</div>
     </div>
-
+ 
     <button class="btn btn-primary" onclick="generateExcel()">
       📊 Générer le fichier Excel
     </button>
   </div>
-
+ 
   <!-- ÉTAPE 4 : Succès -->
   <div id="section-success" class="hidden fade-in">
     <div class="card">
@@ -433,14 +433,14 @@
       </button>
     </div>
   </div>
-
+ 
 </div>
-
+ 
 <script>
 const DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 let currentPhotoBase64 = null;
 let currentPhotoMime = 'image/jpeg';
-
+ 
 function buildTable() {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
@@ -461,7 +461,7 @@ function buildTable() {
     tbody.appendChild(tr);
   });
 }
-
+ 
 document.getElementById('fileInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -474,7 +474,7 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
   };
   reader.readAsDataURL(file);
 });
-
+ 
 const uploadZone = document.getElementById('uploadZone');
 uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
@@ -492,33 +492,33 @@ uploadZone.addEventListener('drop', e => {
   };
   reader.readAsDataURL(file);
 });
-
+ 
 function showSection(id) {
   ['section-upload','section-loading','section-verify','section-success'].forEach(s => {
     document.getElementById(s).classList.add('hidden');
   });
   document.getElementById(id).classList.remove('hidden');
 }
-
+ 
 function updateSteps(active) {
   for (let i = 1; i <= 3; i++) {
     const el = document.getElementById(`step${i}`);
     el.className = 'step' + (i < active ? ' done' : i === active ? ' active' : '');
   }
 }
-
+ 
 async function analyzePhoto() {
   showSection('section-loading');
   updateSteps(2);
   buildTable();
-
+ 
   const statusEl = document.getElementById('loadingStatus');
   statusEl.textContent = 'Envoi de la photo à l\'IA…';
-
+ 
   const prompt = `Tu es un assistant agricole expert. Analyse cette photo d'une fiche hebdomadaire de production d'œufs (fiche Huttepain) et extrais TOUTES les données visibles.
-
+ 
 Retourne UNIQUEMENT un JSON valide avec cette structure exacte (mets null pour les valeurs illisibles) :
-
+ 
 {
   "semaine_num": null,
   "semaines_age": null,
@@ -555,14 +555,14 @@ Retourne UNIQUEMENT un JSON valide avec cette structure exacte (mets null pour l
   },
   "observations": null
 }
-
+ 
 Le tableau "jours" doit avoir exactement 7 entrées (Lundi à Dimanche) dans l'ordre.
 Les dates sont au format YYYY-MM-DD si visible.
 Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
-
+ 
   try {
     statusEl.textContent = 'Analyse par l\'IA…';
-
+ 
     const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -571,11 +571,11 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
         mimeType: currentPhotoMime
       })
     });
-
+ 
     const data = await response.json();
     if (data.error) throw new Error(data.error);
     statusEl.textContent = 'Structuration des données…';
-
+ 
     // Nettoyage robuste de la réponse Gemini
     let raw = data.text || '';
     // Extraire le JSON entre accolades si entouré de texte
@@ -585,7 +585,7 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
     populateForm(extracted);
     showSection('section-verify');
     updateSteps(3);
-
+ 
   } catch (err) {
     console.error('Erreur analyse:', err);
     document.getElementById('errorBox').textContent = '⚠️ Extraction incomplète (' + err.message + '). Vérifiez et complétez les champs manuellement.';
@@ -594,7 +594,7 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
     updateSteps(3);
   }
 }
-
+ 
 function populateForm(d) {
   if (!d) return;
   const set = (id, val) => {
@@ -613,14 +613,31 @@ function populateForm(d) {
   set('f_observations', d.observations);
   if (d.resultats) {
     const r = d.resultats;
-    set('f_pct_ponte', r.pct_ponte);
-    set('f_pct_mortalite', r.pct_mortalite);
     set('f_poids_oeufs', r.poids_oeufs_g);
-    set('f_conso_eau', r.conso_eau_ml_j_poule);
-    set('f_conso_aliment', r.conso_aliment_g_j_poule);
-    set('f_oeufs_poule', r.nb_oeufs_poule_depart);
     set('f_pesee_poids', r.pesee_poules_poids_kg);
     set('f_pesee_homo', r.pesee_poules_homogeneite_pct);
+  }
+ 
+  // Calcul automatique des résultats techniques depuis le tableau journalier
+  if (d.jours && d.jours.length === 7) {
+    const effectif = d.effectif_debut || 6572;
+    const joursRemplis = d.jours.filter(j => j.ponte_total !== null);
+    const nbJours = joursRemplis.length || 7;
+ 
+    const totalOeufs = d.jours.reduce((s, j) => s + (j.ponte_total || 0), 0);
+    const totalMort = d.jours.reduce((s, j) => s + (j.mortalite || 0), 0);
+    const totalEau = d.jours.reduce((s, j) => s + (j.eau_L || 0), 0);
+    const totalAliment = d.jours.reduce((s, j) => s + (j.aliment_kg || 0), 0);
+ 
+    const pctPonte = effectif > 0 ? (totalOeufs / (effectif * nbJours) * 100) : null;
+    const pctMort = effectif > 0 ? (totalMort / effectif * 100) : null;
+    const consoEau = effectif > 0 ? (totalEau * 1000 / nbJours / effectif) : null;
+    const consoAliment = effectif > 0 ? (totalAliment * 1000 / nbJours / effectif) : null;
+ 
+    if (pctPonte !== null) set('f_pct_ponte', pctPonte.toFixed(2));
+    if (pctMort !== null) set('f_pct_mortalite', pctMort.toFixed(3));
+    if (consoEau !== null) set('f_conso_eau', consoEau.toFixed(1));
+    if (consoAliment !== null) set('f_conso_aliment', consoAliment.toFixed(1));
   }
   if (d.jours && d.jours.length === 7) {
     d.jours.forEach((j, i) => {
@@ -636,13 +653,13 @@ function populateForm(d) {
     });
   }
 }
-
+ 
 function getVal(id) {
   const el = document.getElementById(id);
   if (!el || el.value === '') return null;
   return isNaN(el.value) ? el.value : parseFloat(el.value);
 }
-
+ 
 function generateExcel() {
   const semaine = getVal('f_semaine_num');
   const age = getVal('f_age');
@@ -653,7 +670,7 @@ function generateExcel() {
   const programmeLumineux = document.getElementById('f_programme_lumineux').value;
   const livraison = getVal('f_livraison');
   const observations = document.getElementById('f_observations').value;
-
+ 
   const jours = DAYS.map((jour, i) => ({
     jour,
     date: document.getElementById(`j_date_${i}`).value,
@@ -666,7 +683,7 @@ function generateExcel() {
     temp_min: getVal(`j_temp_min_${i}`),
     temp_max: getVal(`j_temp_max_${i}`)
   }));
-
+ 
   const resultats = {
     pct_ponte: getVal('f_pct_ponte'),
     pct_mortalite: getVal('f_pct_mortalite'),
@@ -677,10 +694,10 @@ function generateExcel() {
     pesee_poids: getVal('f_pesee_poids'),
     pesee_homo: getVal('f_pesee_homo')
   };
-
+ 
   const wb = XLSX.utils.book_new();
   const wsData = [];
-
+ 
   wsData.push(['FICHE TECHNIQUE DE PRODUCTION - EARL DE LA ROULANDIÈRE - JUIGNÉ Lucas']);
   wsData.push([]);
   wsData.push(['Semaine N°', semaine, '', 'Semaines d\'âge', age]);
@@ -690,7 +707,7 @@ function generateExcel() {
   wsData.push(['Livraison aliment (T)', livraison]);
   wsData.push([]);
   wsData.push(['JOUR','DATE','PONTE CLASSÉES','PONTE DÉCLASSÉES','PONTE TOTAL','MORTALITÉ','EAU (L)','ALIMENT (KG)','T° MIN','T° MAX']);
-
+ 
   let totalClasses=0, totalDeclasses=0, totalTotal=0, totalMort=0, totalEau=0, totalAliment=0;
   jours.forEach(j => {
     wsData.push([j.jour, j.date, j.ponte_classes, j.ponte_declasses, j.ponte_total, j.mortalite, j.eau_L, j.aliment_kg, j.temp_min, j.temp_max]);
@@ -701,7 +718,7 @@ function generateExcel() {
     totalEau += j.eau_L || 0;
     totalAliment += j.aliment_kg || 0;
   });
-
+ 
   wsData.push(['TOTAL SEMAINE','', totalClasses, totalDeclasses, totalTotal, totalMort, totalEau.toFixed(1), totalAliment.toFixed(1),'','']);
   wsData.push([]);
   wsData.push(['RÉSULTATS TECHNIQUES']);
@@ -715,11 +732,11 @@ function generateExcel() {
   wsData.push(['Nb œufs / poule départ', resultats.oeufs_poule || '']);
   wsData.push([]);
   wsData.push(['OBSERVATIONS', observations]);
-
+ 
   const ws = XLSX.utils.aoa_to_sheet(wsData);
   ws['!cols'] = [{wch:22},{wch:14},{wch:16},{wch:18},{wch:14},{wch:12},{wch:10},{wch:14},{wch:10},{wch:10}];
   XLSX.utils.book_append_sheet(wb, ws, 'Saisie semaine');
-
+ 
   const ws2Data = [];
   ws2Data.push(['→ DONNÉES À COPIER DANS TABLEAU DE BORD LOHMANN V25.1']);
   ws2Data.push(['Colonne','Valeur','Description']);
@@ -737,25 +754,25 @@ function generateExcel() {
   ws2Data.push(['AW (Homogénéité %)', resultats.pesee_homo, 'Homogénéité (%)']);
   ws2Data.push(['AY (Conso eau L)', totalEau.toFixed(1), 'Consommation eau hebdo (L)']);
   ws2Data.push(['BF (Commentaire)', observations, 'Observations']);
-
+ 
   const ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
   ws2['!cols'] = [{wch:22},{wch:20},{wch:35}];
   XLSX.utils.book_append_sheet(wb, ws2, 'Mapping Lohmann');
-
+ 
   const filename = `PonteScan_S${semaine||'XX'}_Age${age||'XX'}_${dateFin||'date'}.xlsx`;
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
   const blob = new Blob([wbout], { type: 'application/octet-stream' });
   const url = URL.createObjectURL(blob);
-
+ 
   document.getElementById('downloadLink').href = url;
   document.getElementById('downloadLink').download = filename;
   document.getElementById('successSub').textContent = `Semaine ${semaine||'?'} · Âge ${age||'?'} sem · ${totalTotal.toLocaleString('fr')} œufs`;
-
+ 
   showSection('section-success');
   updateSteps(3);
   document.getElementById('step3').className = 'step done';
 }
-
+ 
 function resetApp() {
   currentPhotoBase64 = null;
   document.getElementById('fileInput').value = '';
@@ -763,7 +780,7 @@ function resetApp() {
   updateSteps(1);
   buildTable();
 }
-
+ 
 buildTable();
 </script>
 </body>
