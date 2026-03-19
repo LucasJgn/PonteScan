@@ -284,6 +284,26 @@
     </div>
   </div>
  
+  <!-- ÉTAPE 1b : Preview + rotation avant analyse -->
+  <div id="section-preview" class="hidden fade-in">
+    <div class="card">
+      <div class="card-title">Étape 1 / 3</div>
+      <div class="card-heading">Vérifier l'orientation</div>
+      <div class="preview-wrapper" style="margin-bottom:16px;">
+        <img id="photoPreview" src="" alt="Photo">
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;">
+        <button class="btn btn-secondary" onclick="rotatePhoto()" style="flex:1;justify-content:center;">↻ Tourner 90°</button>
+        <button class="btn btn-ghost" onclick="resetApp()">↩ Rechoisir</button>
+      </div>
+      <button class="btn btn-primary" onclick="analyzePhoto()">🔍 Analyser cette photo</button>
+    </div>
+    <div class="info-box">
+      <span>ℹ️</span>
+      <div>La fiche doit être droite et lisible. Tournez si nécessaire avant d'analyser.</div>
+    </div>
+  </div>
+ 
   <!-- ÉTAPE 2 : Chargement -->
   <div id="section-loading" class="hidden fade-in">
     <div class="card">
@@ -303,13 +323,6 @@
  
       <div id="errorBox" class="error-box hidden"></div>
  
-      <div class="preview-wrapper">
-        <img id="photoPreview" src="" alt="Photo analysée">
-        <div class="preview-overlay">
-          <button class="btn btn-ghost" onclick="rotatePhoto()" title="Tourner la photo">↻ Rotation</button>
-          <button class="btn btn-ghost" onclick="resetApp()">↩ Nouvelle photo</button>
-        </div>
-      </div>
  
       <div class="section-sep">Informations semaine</div>
       <div class="data-grid">
@@ -582,10 +595,11 @@ document.getElementById('fileInput').addEventListener('change', async function(e
   const file = e.target.files[0];
   if (!file) return;
   currentPhotoMime = 'image/jpeg';
+  currentRotation = 0;
   const corrected = await fixImageOrientation(file);
   currentPhotoBase64 = corrected.split(',')[1];
   document.getElementById('photoPreview').src = corrected;
-  analyzePhoto();
+  showSection('section-preview');
 });
  
 const uploadZone = document.getElementById('uploadZone');
@@ -597,14 +611,15 @@ uploadZone.addEventListener('drop', async e => {
   const file = e.dataTransfer.files[0];
   if (!file) return;
   currentPhotoMime = 'image/jpeg';
+  currentRotation = 0;
   const corrected = await fixImageOrientation(file);
   currentPhotoBase64 = corrected.split(',')[1];
   document.getElementById('photoPreview').src = corrected;
-  analyzePhoto();
+  showSection('section-preview');
 });
  
 function showSection(id) {
-  ['section-upload','section-loading','section-verify','section-success'].forEach(s => {
+  ['section-upload','section-preview','section-loading','section-verify','section-success'].forEach(s => {
     document.getElementById(s).classList.add('hidden');
   });
   document.getElementById(id).classList.remove('hidden');
