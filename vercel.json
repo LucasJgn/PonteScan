@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/inject.py": {
-      "runtime": "@vercel/python"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/inject",
