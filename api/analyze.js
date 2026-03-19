@@ -21,6 +21,7 @@ export default async function handler(req, res) {
 INSTRUCTIONS CRITIQUES pour la lecture des chiffres :
 - Les nombres de ponte sont généralement entre 5000 et 7000 œufs par jour pour un troupeau de 6500 poules
 - Lis TOUS les chiffres jusqu'au dernier — ne tronque jamais un nombre (ex: 6060 et non 606, 6090 et non 609)
+- Un tiret "—" ou "-" dans une cellule signifie 0 (zéro), pas un chiffre — c'est fréquent pour la mortalité
 - Le numéro de semaine ("semaine_num") : calcule-le à partir de la date de fin (numéro de semaine ISO 8601 de l'année)
 - Les consommations d'eau sont entre 1000 et 2000 L/jour, d'aliment entre 500 et 1000 kg/jour
 - La mortalité est généralement entre 0 et 20 par jour
