@@ -8,6 +8,14 @@ export default async function handler(req, res) {
   try {
     const { imageBase64, mimeType } = req.body;
 
+    if (!imageBase64) {
+      return res.status(400).json({ error: 'Pas de photo reçue (imageBase64 manquant)' });
+    }
+
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ error: 'Clé GEMINI_API_KEY manquante dans Vercel' });
+    }
+
     const prompt = `Tu es un assistant agricole expert. Analyse cette photo d'une fiche hebdomadaire de production d'œufs (fiche Huttepain) et extrais TOUTES les données visibles.
 
 Retourne UNIQUEMENT un JSON valide avec cette structure exacte (mets null pour les valeurs illisibles) :
@@ -73,10 +81,20 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: data.error?.message || 'Gemini error' });
+      return res.status(response.status).json({ 
+        error: `Gemini error ${response.status}: ${data.error?.message || JSON.stringify(data)}` 
+      });
     }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    if (!text) {
+      return res.status(500).json({ 
+        error: 'Gemini n\'a pas retourné de texte',
+        debug: JSON.stringify(data).substring(0, 500)
+      });
+    }
+
     return res.status(200).json({ text });
 
   } catch (err) {
