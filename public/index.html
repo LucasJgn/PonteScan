@@ -414,16 +414,34 @@
       <!-- Caméra en direct -->
       <div id="camera-wrapper" style="position:relative;border-radius:12px;overflow:hidden;background:#000;margin-bottom:12px;display:none;">
         <video id="cameraVideo" autoplay playsinline style="width:100%;display:block;border-radius:12px;"></video>
-        <!-- Grille de cadrage en direct -->
-        <div style="position:absolute;inset:0;pointer-events:none;
-          background-image:
-            linear-gradient(rgba(184,240,88,0.4) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(184,240,88,0.4) 1px, transparent 1px);
-          background-size: 33.33% 33.33%, 33.33% 33.33%;">
-          <div style="position:absolute;top:8px;left:8px;width:28px;height:28px;border-top:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:3px 0 0 0;"></div>
-          <div style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-top:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 3px 0 0;"></div>
-          <div style="position:absolute;bottom:8px;left:8px;width:28px;height:28px;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:0 0 0 3px;"></div>
-          <div style="position:absolute;bottom:8px;right:8px;width:28px;height:28px;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 0 3px 0;"></div>
+        <!-- Cadre A4 centré (ratio 1.414 paysage = largeur/hauteur) -->
+        <div id="a4-overlay" style="display:none;position:absolute;inset:0;pointer-events:none;">
+          <!-- Zone sombre autour du cadre A4 -->
+          <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
+          <!-- Cadre A4 — 90% de la largeur, hauteur calculée pour ratio A4 paysage -->
+          <div id="a4-frame" style="
+            position:absolute;
+            left:5%; right:5%;
+            top:50%; transform:translateY(-50%);
+            aspect-ratio: 1.414 / 1;
+            border:2px solid var(--accent);
+            border-radius:4px;
+            background:transparent;
+            box-shadow:0 0 0 9999px rgba(0,0,0,0.35);
+          ">
+            <!-- Grille tiers intérieure -->
+            <div style="position:absolute;inset:0;
+              background-image:
+                linear-gradient(rgba(184,240,88,0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(184,240,88,0.3) 1px, transparent 1px);
+              background-size: 33.33% 33.33%, 33.33% 33.33%;
+            "></div>
+            <!-- Coins -->
+            <div style="position:absolute;top:-2px;left:-2px;width:20px;height:20px;border-top:3px solid var(--accent);border-left:3px solid var(--accent);"></div>
+            <div style="position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-top:3px solid var(--accent);border-right:3px solid var(--accent);"></div>
+            <div style="position:absolute;bottom:-2px;left:-2px;width:20px;height:20px;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);"></div>
+            <div style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);"></div>
+          </div>
         </div>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
       </div>
@@ -1221,11 +1239,24 @@ let cameraStream = null;
 async function startCamera() {
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+      video: {
+        facingMode: 'environment',
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+        aspectRatio: { ideal: 1.777 }
+      }
     });
     const video = document.getElementById('cameraVideo');
     video.srcObject = cameraStream;
-    document.getElementById('camera-wrapper').style.display = 'block';
+
+    // Forcer l'affichage en paysage
+    const wrapper = document.getElementById('camera-wrapper');
+    wrapper.style.display = 'block';
+
+    // Overlay A4 centré dans le flux vidéo
+    const a4Overlay = document.getElementById('a4-overlay');
+    a4Overlay.style.display = 'block';
+
     document.getElementById('camera-controls').style.display = 'block';
     document.getElementById('upload-buttons').style.display = 'none';
   } catch(err) {
@@ -1239,6 +1270,7 @@ function stopCamera() {
     cameraStream = null;
   }
   document.getElementById('camera-wrapper').style.display = 'none';
+  document.getElementById('a4-overlay').style.display = 'none';
   document.getElementById('camera-controls').style.display = 'none';
   document.getElementById('upload-buttons').style.display = 'block';
 }
