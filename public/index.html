@@ -1,1 +1,770 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PonteScan — Cahier → Excel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #0d0f0e;
+    --surface: #161a18;
+    --surface2: #1e2420;
+    --border: #2a3330;
+    --accent: #b8f058;
+    --accent2: #5ff0a8;
+    --text: #e8ede8;
+    --muted: #6b7d73;
+    --warn: #f0a030;
+    --error: #f05858;
+  }
 
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(184,240,88,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184,240,88,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .logo-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--accent);
+    letter-spacing: 1px; text-transform: uppercase; margin-top: 1px;
+  }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 4px 10px; border-radius: 20px;
+  }
+
+  .steps { display: flex; gap: 6px; margin-bottom: 32px; }
+  .step { flex: 1; height: 3px; background: var(--surface2); border-radius: 2px; transition: background 0.4s; }
+  .step.active { background: var(--accent); }
+  .step.done { background: var(--accent2); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 4px; font-family: 'DM Mono', monospace;
+  }
+  .card-heading { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
+
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px; padding: 40px 20px;
+    text-align: center; cursor: pointer;
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(184,240,88,0.04);
+  }
+  .upload-zone input {
+    position: absolute; inset: 0; opacity: 0;
+    cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+  .upload-text { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .upload-hint { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+
+  .preview-wrapper { position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+  .preview-wrapper img { width: 100%; display: block; border-radius: 12px; }
+  .preview-overlay { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+    padding: 12px 22px; border-radius: 10px; border: none;
+    cursor: pointer; transition: all 0.2s; text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--accent); color: #0d0f0e;
+    width: 100%; justify-content: center; font-size: 15px; padding: 14px;
+  }
+  .btn-primary:hover { background: #cef575; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    background: var(--surface2); color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-ghost {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border); font-size: 12px; padding: 8px 14px;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+  .btn-success {
+    background: var(--accent2); color: #0d0f0e;
+    width: 100%; justify-content: center; font-size: 15px; padding: 14px;
+  }
+  .btn-success:hover { filter: brightness(1.1); }
+
+  .loading-state { text-align: center; padding: 40px 20px; }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .loading-sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
+
+  .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .data-cell {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+  }
+  .data-cell.full-width { grid-column: 1 / -1; }
+  .data-label {
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+  }
+  .data-input {
+    background: transparent; border: none; color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 500;
+    width: 100%; outline: none; padding: 0;
+  }
+  .data-input:focus { color: var(--accent); }
+
+  .table-scroll {
+    overflow-x: auto; margin-bottom: 16px;
+    border-radius: 10px; border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-family: 'DM Mono', monospace; font-size: 12px; min-width: 600px; }
+  th {
+    background: var(--surface2); color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px; font-size: 10px;
+    padding: 10px 8px; text-align: center; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  td input {
+    background: transparent; border: 1px solid transparent;
+    color: var(--text); font-family: 'DM Mono', monospace;
+    font-size: 12px; width: 70px; text-align: center;
+    padding: 4px; border-radius: 4px; outline: none; transition: border-color 0.2s;
+  }
+  td input:focus { border-color: var(--accent); background: rgba(184,240,88,0.05); color: var(--accent); }
+  .jour-label { color: var(--accent); font-weight: 500; font-size: 11px; }
+
+  .info-box {
+    background: rgba(184,240,88,0.06); border: 1px solid rgba(184,240,88,0.2);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+    font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent2);
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .warn-box {
+    background: rgba(240,160,48,0.06); border: 1px solid rgba(240,160,48,0.2);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+    font-family: 'DM Mono', monospace; font-size: 12px; color: var(--warn);
+    display: flex; gap: 10px;
+  }
+  .error-box {
+    background: rgba(240,88,88,0.06); border: 1px solid rgba(240,88,88,0.3);
+    border-radius: 10px; padding: 16px; color: var(--error);
+    font-family: 'DM Mono', monospace; font-size: 12px; margin-bottom: 16px;
+  }
+
+  .section-sep {
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 2px;
+    margin: 20px 0 12px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .success-state { text-align: center; padding: 20px; }
+  .success-icon {
+    font-size: 64px; margin-bottom: 16px; display: block;
+    animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .success-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+  .success-sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+
+  .hidden { display: none !important; }
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 480px) {
+    .data-grid { grid-template-columns: 1fr; }
+    .tech-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🥚</div>
+      <div>
+        <div class="logo-text">PonteScan</div>
+        <div class="logo-sub">Cahier → Excel Lohmann</div>
+      </div>
+    </div>
+    <div class="badge">V1.0</div>
+  </header>
+
+  <div class="steps">
+    <div class="step active" id="step1"></div>
+    <div class="step" id="step2"></div>
+    <div class="step" id="step3"></div>
+  </div>
+
+  <!-- ÉTAPE 1 : Upload -->
+  <div id="section-upload" class="fade-in">
+    <div class="card">
+      <div class="card-title">Étape 1 / 3</div>
+      <div class="card-heading">Photo du cahier</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*" capture="environment">
+        <span class="upload-icon">📷</span>
+        <div class="upload-text">Prendre ou importer une photo</div>
+        <div class="upload-hint">JPG, PNG · Fiche Huttepain remplie</div>
+      </div>
+    </div>
+    <div class="info-box">
+      <span>ℹ️</span>
+      <div>Photographiez la fiche hebdomadaire remplie. L'IA va extraire toutes les données automatiquement.</div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 2 : Chargement -->
+  <div id="section-loading" class="hidden fade-in">
+    <div class="card">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div class="loading-title">Analyse en cours…</div>
+        <div class="loading-sub" id="loadingStatus">Lecture de la photo par l'IA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 3 : Vérification -->
+  <div id="section-verify" class="hidden fade-in">
+    <div class="card">
+      <div class="card-title">Étape 2 / 3</div>
+      <div class="card-heading">Vérifier & corriger</div>
+
+      <div id="errorBox" class="error-box hidden"></div>
+
+      <div class="preview-wrapper">
+        <img id="photoPreview" src="" alt="Photo analysée">
+        <div class="preview-overlay">
+          <button class="btn btn-ghost" onclick="resetApp()">↩ Nouvelle photo</button>
+        </div>
+      </div>
+
+      <div class="section-sep">Informations semaine</div>
+      <div class="data-grid">
+        <div class="data-cell">
+          <div class="data-label">Semaine N°</div>
+          <input class="data-input" id="f_semaine_num" type="number" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Semaines d'âge</div>
+          <input class="data-input" id="f_age" type="number" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Date début (Du)</div>
+          <input class="data-input" id="f_date_debut" type="date">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Date fin (Au)</div>
+          <input class="data-input" id="f_date_fin" type="date">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Effectif début semaine</div>
+          <input class="data-input" id="f_effectif_debut" type="number" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Effectif fin semaine</div>
+          <input class="data-input" id="f_effectif_fin" type="number" placeholder="—">
+        </div>
+        <div class="data-cell full-width">
+          <div class="data-label">Programme lumineux</div>
+          <input class="data-input" id="f_programme_lumineux" type="text" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Livraison aliment (T)</div>
+          <input class="data-input" id="f_livraison" type="number" step="0.01" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Tours de chaîne</div>
+          <input class="data-input" id="f_tours_chaine" type="text" placeholder="—">
+        </div>
+      </div>
+
+      <div class="section-sep">Production journalière</div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Jour</th><th>Date</th><th>Classées</th><th>Déclassées</th>
+              <th>Total</th><th>Mortalité</th><th>Eau (L)</th>
+              <th>Aliment (kg)</th><th>T° Min</th><th>T° Max</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="section-sep">Résultats techniques</div>
+      <div class="tech-grid">
+        <div class="data-cell">
+          <div class="data-label">% Ponte</div>
+          <input class="data-input" id="f_pct_ponte" type="number" step="0.01" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">% Mortalité</div>
+          <input class="data-input" id="f_pct_mortalite" type="number" step="0.01" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Poids des œufs (g)</div>
+          <input class="data-input" id="f_poids_oeufs" type="number" step="0.1" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Conso eau (ml/j/poule)</div>
+          <input class="data-input" id="f_conso_eau" type="number" step="0.1" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Conso aliment (g/j/poule)</div>
+          <input class="data-input" id="f_conso_aliment" type="number" step="0.1" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Nb œufs / poule départ</div>
+          <input class="data-input" id="f_oeufs_poule" type="number" step="0.01" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Pesée poules — Poids (kg)</div>
+          <input class="data-input" id="f_pesee_poids" type="number" step="0.01" placeholder="—">
+        </div>
+        <div class="data-cell">
+          <div class="data-label">Pesée poules — Homo (%)</div>
+          <input class="data-input" id="f_pesee_homo" type="number" step="0.1" placeholder="—">
+        </div>
+        <div class="data-cell full-width">
+          <div class="data-label">Observations</div>
+          <input class="data-input" id="f_observations" type="text" placeholder="—">
+        </div>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <span>⚠️</span>
+      <div>Vérifiez les valeurs avant de générer le fichier. Modifiez directement dans les champs si besoin.</div>
+    </div>
+
+    <button class="btn btn-primary" onclick="generateExcel()">
+      📊 Générer le fichier Excel
+    </button>
+  </div>
+
+  <!-- ÉTAPE 4 : Succès -->
+  <div id="section-success" class="hidden fade-in">
+    <div class="card">
+      <div class="success-state">
+        <span class="success-icon">✅</span>
+        <div class="success-title">Fichier généré !</div>
+        <div class="success-sub" id="successSub">Données exportées</div>
+      </div>
+      <a id="downloadLink" class="btn btn-success" download>
+        ⬇️ Télécharger le fichier Excel
+      </a>
+    </div>
+    <div style="margin-top: 16px; text-align: center;">
+      <button class="btn btn-secondary" onclick="resetApp()" style="display: inline-flex;">
+        ↩ Nouvelle semaine
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+let currentPhotoBase64 = null;
+
+function buildTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  DAYS.forEach((jour, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="jour-label">${jour.substring(0,3)}</td>
+      <td><input type="date" id="j_date_${i}" style="width:120px"></td>
+      <td><input type="number" id="j_classes_${i}" placeholder="0"></td>
+      <td><input type="number" id="j_declasses_${i}" placeholder="0"></td>
+      <td><input type="number" id="j_total_${i}" placeholder="0"></td>
+      <td><input type="number" id="j_mortalite_${i}" placeholder="0"></td>
+      <td><input type="number" id="j_eau_${i}" step="0.1" placeholder="0"></td>
+      <td><input type="number" id="j_aliment_${i}" step="0.1" placeholder="0"></td>
+      <td><input type="number" id="j_temp_min_${i}" step="0.1" placeholder="0"></td>
+      <td><input type="number" id="j_temp_max_${i}" step="0.1" placeholder="0"></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    currentPhotoBase64 = ev.target.result.split(',')[1];
+    document.getElementById('photoPreview').src = ev.target.result;
+    analyzePhoto();
+  };
+  reader.readAsDataURL(file);
+});
+
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    currentPhotoBase64 = ev.target.result.split(',')[1];
+    document.getElementById('photoPreview').src = ev.target.result;
+    analyzePhoto();
+  };
+  reader.readAsDataURL(file);
+});
+
+function showSection(id) {
+  ['section-upload','section-loading','section-verify','section-success'].forEach(s => {
+    document.getElementById(s).classList.add('hidden');
+  });
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function updateSteps(active) {
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById(`step${i}`);
+    el.className = 'step' + (i < active ? ' done' : i === active ? ' active' : '');
+  }
+}
+
+async function analyzePhoto() {
+  showSection('section-loading');
+  updateSteps(2);
+  buildTable();
+
+  const statusEl = document.getElementById('loadingStatus');
+  statusEl.textContent = 'Envoi de la photo à l\'IA…';
+
+  const prompt = `Tu es un assistant agricole expert. Analyse cette photo d'une fiche hebdomadaire de production d'œufs (fiche Huttepain) et extrais TOUTES les données visibles.
+
+Retourne UNIQUEMENT un JSON valide avec cette structure exacte (mets null pour les valeurs illisibles) :
+
+{
+  "semaine_num": null,
+  "semaines_age": null,
+  "date_debut": null,
+  "date_fin": null,
+  "effectif_debut": null,
+  "effectif_fin": null,
+  "programme_lumineux": null,
+  "livraison_aliment_T": null,
+  "tours_chaine": null,
+  "jours": [
+    {
+      "jour": "Lundi",
+      "date": null,
+      "ponte_classes": null,
+      "ponte_declasses": null,
+      "ponte_total": null,
+      "mortalite": null,
+      "eau_L": null,
+      "aliment_kg": null,
+      "temp_min": null,
+      "temp_max": null
+    }
+  ],
+  "resultats": {
+    "pct_ponte": null,
+    "conso_eau_ml_j_poule": null,
+    "conso_aliment_g_j_poule": null,
+    "pct_mortalite": null,
+    "poids_oeufs_g": null,
+    "pesee_poules_poids_kg": null,
+    "pesee_poules_homogeneite_pct": null,
+    "nb_oeufs_poule_depart": null
+  },
+  "observations": null
+}
+
+Le tableau "jours" doit avoir exactement 7 entrées (Lundi à Dimanche) dans l'ordre.
+Les dates sont au format YYYY-MM-DD si visible.
+Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
+
+  try {
+    statusEl.textContent = 'Analyse par l\'IA…';
+
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: currentPhotoBase64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    statusEl.textContent = 'Structuration des données…';
+
+    const rawText = data.content.map(b => b.text || '').join('');
+    const clean = rawText.replace(/```json|```/g, '').trim();
+    const extracted = JSON.parse(clean);
+    populateForm(extracted);
+    showSection('section-verify');
+    updateSteps(3);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('errorBox').textContent = '⚠️ Extraction automatique incomplète. Vérifiez et complétez les champs manuellement.';
+    document.getElementById('errorBox').classList.remove('hidden');
+    showSection('section-verify');
+    updateSteps(3);
+  }
+}
+
+function populateForm(d) {
+  if (!d) return;
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== null && val !== undefined) el.value = val;
+  };
+  set('f_semaine_num', d.semaine_num);
+  set('f_age', d.semaines_age);
+  set('f_date_debut', d.date_debut);
+  set('f_date_fin', d.date_fin);
+  set('f_effectif_debut', d.effectif_debut);
+  set('f_effectif_fin', d.effectif_fin);
+  set('f_programme_lumineux', d.programme_lumineux);
+  set('f_livraison', d.livraison_aliment_T);
+  set('f_tours_chaine', d.tours_chaine);
+  set('f_observations', d.observations);
+  if (d.resultats) {
+    const r = d.resultats;
+    set('f_pct_ponte', r.pct_ponte);
+    set('f_pct_mortalite', r.pct_mortalite);
+    set('f_poids_oeufs', r.poids_oeufs_g);
+    set('f_conso_eau', r.conso_eau_ml_j_poule);
+    set('f_conso_aliment', r.conso_aliment_g_j_poule);
+    set('f_oeufs_poule', r.nb_oeufs_poule_depart);
+    set('f_pesee_poids', r.pesee_poules_poids_kg);
+    set('f_pesee_homo', r.pesee_poules_homogeneite_pct);
+  }
+  if (d.jours && d.jours.length === 7) {
+    d.jours.forEach((j, i) => {
+      set(`j_date_${i}`, j.date);
+      set(`j_classes_${i}`, j.ponte_classes);
+      set(`j_declasses_${i}`, j.ponte_declasses);
+      set(`j_total_${i}`, j.ponte_total);
+      set(`j_mortalite_${i}`, j.mortalite);
+      set(`j_eau_${i}`, j.eau_L);
+      set(`j_aliment_${i}`, j.aliment_kg);
+      set(`j_temp_min_${i}`, j.temp_min);
+      set(`j_temp_max_${i}`, j.temp_max);
+    });
+  }
+}
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  if (!el || el.value === '') return null;
+  return isNaN(el.value) ? el.value : parseFloat(el.value);
+}
+
+function generateExcel() {
+  const semaine = getVal('f_semaine_num');
+  const age = getVal('f_age');
+  const dateDebut = document.getElementById('f_date_debut').value;
+  const dateFin = document.getElementById('f_date_fin').value;
+  const effectifDebut = getVal('f_effectif_debut') || 6572;
+  const effectifFin = getVal('f_effectif_fin');
+  const programmeLumineux = document.getElementById('f_programme_lumineux').value;
+  const livraison = getVal('f_livraison');
+  const observations = document.getElementById('f_observations').value;
+
+  const jours = DAYS.map((jour, i) => ({
+    jour,
+    date: document.getElementById(`j_date_${i}`).value,
+    ponte_classes: getVal(`j_classes_${i}`),
+    ponte_declasses: getVal(`j_declasses_${i}`),
+    ponte_total: getVal(`j_total_${i}`),
+    mortalite: getVal(`j_mortalite_${i}`),
+    eau_L: getVal(`j_eau_${i}`),
+    aliment_kg: getVal(`j_aliment_${i}`),
+    temp_min: getVal(`j_temp_min_${i}`),
+    temp_max: getVal(`j_temp_max_${i}`)
+  }));
+
+  const resultats = {
+    pct_ponte: getVal('f_pct_ponte'),
+    pct_mortalite: getVal('f_pct_mortalite'),
+    poids_oeufs: getVal('f_poids_oeufs'),
+    conso_eau: getVal('f_conso_eau'),
+    conso_aliment: getVal('f_conso_aliment'),
+    oeufs_poule: getVal('f_oeufs_poule'),
+    pesee_poids: getVal('f_pesee_poids'),
+    pesee_homo: getVal('f_pesee_homo')
+  };
+
+  const wb = XLSX.utils.book_new();
+  const wsData = [];
+
+  wsData.push(['FICHE TECHNIQUE DE PRODUCTION - EARL DE LA ROULANDIÈRE - JUIGNÉ Lucas']);
+  wsData.push([]);
+  wsData.push(['Semaine N°', semaine, '', 'Semaines d\'âge', age]);
+  wsData.push(['Du', dateDebut, '', 'Au', dateFin]);
+  wsData.push(['Effectif début semaine', effectifDebut, '', 'Effectif fin semaine', effectifFin]);
+  wsData.push(['Programme lumineux', programmeLumineux]);
+  wsData.push(['Livraison aliment (T)', livraison]);
+  wsData.push([]);
+  wsData.push(['JOUR','DATE','PONTE CLASSÉES','PONTE DÉCLASSÉES','PONTE TOTAL','MORTALITÉ','EAU (L)','ALIMENT (KG)','T° MIN','T° MAX']);
+
+  let totalClasses=0, totalDeclasses=0, totalTotal=0, totalMort=0, totalEau=0, totalAliment=0;
+  jours.forEach(j => {
+    wsData.push([j.jour, j.date, j.ponte_classes, j.ponte_declasses, j.ponte_total, j.mortalite, j.eau_L, j.aliment_kg, j.temp_min, j.temp_max]);
+    totalClasses += j.ponte_classes || 0;
+    totalDeclasses += j.ponte_declasses || 0;
+    totalTotal += j.ponte_total || 0;
+    totalMort += j.mortalite || 0;
+    totalEau += j.eau_L || 0;
+    totalAliment += j.aliment_kg || 0;
+  });
+
+  wsData.push(['TOTAL SEMAINE','', totalClasses, totalDeclasses, totalTotal, totalMort, totalEau.toFixed(1), totalAliment.toFixed(1),'','']);
+  wsData.push([]);
+  wsData.push(['RÉSULTATS TECHNIQUES']);
+  wsData.push(['% de ponte', resultats.pct_ponte ? resultats.pct_ponte + '%' : '']);
+  wsData.push(['Conso eau (ml/j/poule)', resultats.conso_eau || '']);
+  wsData.push(['Conso aliment (g/j/poule)', resultats.conso_aliment || '']);
+  wsData.push(['% Mortalité', resultats.pct_mortalite ? resultats.pct_mortalite + '%' : '']);
+  wsData.push(['Poids des œufs (g)', resultats.poids_oeufs || '']);
+  wsData.push(['Pesée poules — Poids (kg)', resultats.pesee_poids || '']);
+  wsData.push(['Pesée poules — Homogénéité (%)', resultats.pesee_homo ? resultats.pesee_homo + '%' : '']);
+  wsData.push(['Nb œufs / poule départ', resultats.oeufs_poule || '']);
+  wsData.push([]);
+  wsData.push(['OBSERVATIONS', observations]);
+
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = [{wch:22},{wch:14},{wch:16},{wch:18},{wch:14},{wch:12},{wch:10},{wch:14},{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Saisie semaine');
+
+  const ws2Data = [];
+  ws2Data.push(['→ DONNÉES À COPIER DANS TABLEAU DE BORD LOHMANN V25.1']);
+  ws2Data.push(['Colonne','Valeur','Description']);
+  ws2Data.push(['B (Date)', dateFin, 'Date fin de semaine']);
+  ws2Data.push(['C (Age)', age, 'Semaines d\'âge']);
+  ws2Data.push(['D (Mortalité Nb)', totalMort, 'Mortalité totale semaine']);
+  ws2Data.push(['G (Solde fin)', effectifFin, 'Effectif fin de semaine']);
+  ws2Data.push(['H→N (Ponte J1→J7)', ...jours.map(j => j.ponte_total || 0)]);
+  ws2Data.push(['P (Ponte hebdo)', totalTotal, 'Total ponte semaine']);
+  ws2Data.push(['W (Décl. élevage)', totalDeclasses, 'Déclassés élevage']);
+  ws2Data.push(['AB (PO Semaine)', resultats.poids_oeufs, 'Poids moyen œufs (g)']);
+  ws2Data.push(['AM (Livraison kg)', livraison ? livraison * 1000 : '', 'Livraison aliment (kg)']);
+  ws2Data.push(['AP (Conso g/j/PP)', resultats.conso_aliment, 'Conso aliment g/j/poule']);
+  ws2Data.push(['AV (Poids vif g)', resultats.pesee_poids ? resultats.pesee_poids * 1000 : '', 'Poids vif (g)']);
+  ws2Data.push(['AW (Homogénéité %)', resultats.pesee_homo, 'Homogénéité (%)']);
+  ws2Data.push(['AY (Conso eau L)', totalEau.toFixed(1), 'Consommation eau hebdo (L)']);
+  ws2Data.push(['BF (Commentaire)', observations, 'Observations']);
+
+  const ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
+  ws2['!cols'] = [{wch:22},{wch:20},{wch:35}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Mapping Lohmann');
+
+  const filename = `PonteScan_S${semaine||'XX'}_Age${age||'XX'}_${dateFin||'date'}.xlsx`;
+  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([wbout], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+
+  document.getElementById('downloadLink').href = url;
+  document.getElementById('downloadLink').download = filename;
+  document.getElementById('successSub').textContent = `Semaine ${semaine||'?'} · Âge ${age||'?'} sem · ${totalTotal.toLocaleString('fr')} œufs`;
+
+  showSection('section-success');
+  updateSteps(3);
+  document.getElementById('step3').className = 'step done';
+}
+
+function resetApp() {
+  currentPhotoBase64 = null;
+  document.getElementById('fileInput').value = '';
+  showSection('section-upload');
+  updateSteps(1);
+  buildTable();
+}
+
+buildTable();
+</script>
+</body>
+</html>
