@@ -16,7 +16,14 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Clé ANTHROPIC_API_KEY manquante dans Vercel' });
     }
  
-    const prompt = `Tu es un assistant agricole expert. Analyse cette photo d'une fiche hebdomadaire de production d'œufs (fiche Huttepain) et extrais TOUTES les données visibles.
+    const prompt = `Tu es un assistant agricole expert en lecture de fiches d'élevage manuscrites. Analyse cette photo d'une fiche hebdomadaire de production d'œufs (fiche Huttepain).
+ 
+INSTRUCTIONS CRITIQUES pour la lecture des chiffres :
+- Les nombres de ponte sont généralement entre 5000 et 7000 œufs par jour pour un troupeau de 6500 poules
+- Lis TOUS les chiffres jusqu'au dernier — ne tronque jamais un nombre (ex: 6060 et non 606, 6090 et non 609)
+- Si un chiffre semble coupé par le bord de la cellule, complète-le logiquement selon le contexte
+- Les consommations d'eau sont entre 1000 et 2000 L/jour, d'aliment entre 500 et 1000 kg/jour
+- La mortalité est généralement entre 0 et 20 par jour
  
 Retourne UNIQUEMENT un JSON valide avec cette structure exacte (mets null pour les valeurs illisibles) :
  
@@ -58,7 +65,7 @@ Retourne UNIQUEMENT un JSON valide avec cette structure exacte (mets null pour l
 }
  
 Le tableau "jours" doit avoir exactement 7 entrées (Lundi à Dimanche) dans l'ordre.
-Les dates sont au format YYYY-MM-DD si visible.
+Les dates sont au format YYYY-MM-DD. Sur la fiche les dates sont écrites en JJ/MM sans l'année — utilise l'année en cours (2026) pour compléter. Exemple : "16/03" devient "2026-03-16".
 Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
  
     const response = await fetch('https://api.anthropic.com/v1/messages', {
