@@ -272,7 +272,7 @@
       <div class="card-title">Étape 1 / 3</div>
       <div class="card-heading">Photo du cahier</div>
       <div class="upload-zone" id="uploadZone">
-      <input type="file" id="fileInput" accept="image/*">
+        <input type="file" id="fileInput" accept="image/*">
         <span class="upload-icon">📷</span>
         <div class="upload-text">Prendre ou importer une photo</div>
         <div class="upload-hint">JPG, PNG · Fiche Huttepain remplie</div>
@@ -576,15 +576,19 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
     if (data.error) throw new Error(data.error);
     statusEl.textContent = 'Structuration des données…';
 
-    const clean = data.text.replace(/```json|```/g, '').trim();
-    const extracted = JSON.parse(clean);
+    // Nettoyage robuste de la réponse Gemini
+    let raw = data.text || '';
+    // Extraire le JSON entre accolades si entouré de texte
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('Pas de JSON trouvé dans la réponse');
+    const extracted = JSON.parse(match[0]);
     populateForm(extracted);
     showSection('section-verify');
     updateSteps(3);
 
   } catch (err) {
-    console.error(err);
-    document.getElementById('errorBox').textContent = '⚠️ Extraction automatique incomplète. Vérifiez et complétez les champs manuellement.';
+    console.error('Erreur analyse:', err);
+    document.getElementById('errorBox').textContent = '⚠️ Extraction incomplète (' + err.message + '). Vérifiez et complétez les champs manuellement.';
     document.getElementById('errorBox').classList.remove('hidden');
     showSection('section-verify');
     updateSteps(3);
