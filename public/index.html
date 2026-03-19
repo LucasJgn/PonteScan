@@ -410,8 +410,38 @@
       <div>Vérifiez les valeurs avant de générer le fichier. Modifiez directement dans les champs si besoin.</div>
     </div>
  
-    <button class="btn btn-primary" onclick="generateExcel()">
-      📊 Générer le fichier Excel
+    <!-- Option A : remplir fichier Lohmann personnel -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">Option 1 — Votre fichier Lohmann</div>
+      <div class="card-heading" style="font-size:16px;margin-bottom:14px;">Remplir mon tableau de bord</div>
+      <div class="upload-zone" id="lohmannZone" style="padding:24px 16px;">
+        <input type="file" id="lohmannInput" accept=".xlsx,.xls">
+        <span class="upload-icon" style="font-size:32px;">📂</span>
+        <div class="upload-text" style="font-size:14px;">Importer mon fichier Lohmann (.xlsx)</div>
+        <div class="upload-hint">Les données seront injectées dans la bonne ligne</div>
+      </div>
+      <div id="lohmannStatus" class="hidden" style="margin-top:12px;"></div>
+    </div>
+ 
+    <!-- Confirmation ligne trouvée -->
+    <div id="section-confirm" class="hidden fade-in">
+      <div class="card" style="border-color: rgba(184,240,88,0.4);">
+        <div class="card-title">Confirmation</div>
+        <div id="confirmMessage" style="font-size:15px;font-weight:700;margin-bottom:16px;"></div>
+        <div id="confirmDetail" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:20px;"></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" onclick="confirmInject()" style="flex:1;">✅ Confirmer et télécharger</button>
+          <button class="btn btn-secondary" onclick="cancelInject()" style="flex:0 0 auto;">✗ Annuler</button>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Option B : export standard -->
+    <div style="text-align:center;margin:8px 0 4px;">
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">— ou —</span>
+    </div>
+    <button class="btn btn-secondary" onclick="generateExcel()" style="width:100%;justify-content:center;">
+      📊 Export Excel standard
     </button>
   </div>
  
@@ -853,10 +883,159 @@ function generateExcel() {
  
 function resetApp() {
   currentPhotoBase64 = null;
+  lohmannWorkbook = null;
+  lohmannFilename = null;
   document.getElementById('fileInput').value = '';
+  document.getElementById('lohmannInput').value = '';
+  document.getElementById('lohmannStatus').classList.add('hidden');
+  document.getElementById('section-confirm').classList.add('hidden');
   showSection('section-upload');
   updateSteps(1);
   buildTable();
+}
+ 
+// ---- LOHMANN INJECT ----
+let lohmannWorkbook = null;
+let lohmannFilename = null;
+let lohmannTargetRow = null;
+let lohmannSheetName = null;
+ 
+document.getElementById('lohmannInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  lohmannFilename = file.name;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      lohmannWorkbook = XLSX.read(ev.target.result, { type: 'array', cellDates: true });
+      findLohmannRow();
+    } catch(err) {
+      showLohmannStatus('error', '❌ Impossible de lire ce fichier Excel');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+ 
+function findLohmannRow() {
+  const age = getVal('f_age');
+  const dateFin = document.getElementById('f_date_fin').value;
+ 
+  if (!age) {
+    showLohmannStatus('error', '⚠️ Semaines d\'âge non renseignées — vérifiez l\'étape précédente');
+    return;
+  }
+ 
+  // Chercher l'onglet "Fiche technique de production" ou le premier onglet de données
+  const sheetNames = lohmannWorkbook.SheetNames;
+  let targetSheet = sheetNames.find(n => n.toLowerCase().includes('fiche') || n.toLowerCase().includes('production'));
+  if (!targetSheet) targetSheet = sheetNames[0];
+  lohmannSheetName = targetSheet;
+ 
+  const ws = lohmannWorkbook.Sheets[targetSheet];
+  const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+ 
+  // Chercher la ligne où colonne C (index 2) = age
+  let foundRow = -1;
+  for (let i = 0; i < data.length; i++) {
+    const cellC = data[i][2];
+    if (cellC !== null && cellC !== undefined && parseInt(cellC) === parseInt(age)) {
+      foundRow = i;
+      break;
+    }
+  }
+ 
+  if (foundRow === -1) {
+    showLohmannStatus('error', `❌ Semaine d'âge ${age} introuvable dans l'onglet "${targetSheet}"`);
+    return;
+  }
+ 
+  lohmannTargetRow = foundRow;
+ 
+  // Afficher confirmation
+  const rowData = data[foundRow];
+  const dateCell = rowData[1];
+  const dateStr = dateCell ? (dateCell instanceof Date ? dateCell.toLocaleDateString('fr') : dateCell) : '—';
+ 
+  document.getElementById('confirmMessage').textContent =
+    `Semaine d'âge ${age} trouvée — ligne ${foundRow + 1} de l'onglet "${targetSheet}"`;
+  document.getElementById('confirmDetail').innerHTML =
+    `Date dans le fichier : <strong style="color:var(--accent)">${dateStr}</strong><br>` +
+    `Date extraite de la fiche : <strong style="color:var(--accent)">${dateFin || '—'}</strong><br><br>` +
+    `Les colonnes suivantes seront remplies : D (mortalité), G (effectif fin), H→N (ponte J1-J7), P (hebdo), W (déclassés), AB (poids œufs), AM (livraison), AP (conso aliment), AV (poids vif), AW (homo), AY (eau), BF (observations)`;
+ 
+  document.getElementById('section-confirm').classList.remove('hidden');
+  showLohmannStatus('ok', `✅ Ligne ${foundRow + 1} identifiée — vérifiez et confirmez ci-dessous`);
+}
+ 
+function showLohmannStatus(type, msg) {
+  const el = document.getElementById('lohmannStatus');
+  el.classList.remove('hidden');
+  el.className = type === 'error' ? 'error-box' : 'info-box';
+  el.innerHTML = msg;
+}
+ 
+function cancelInject() {
+  document.getElementById('section-confirm').classList.add('hidden');
+  document.getElementById('lohmannInput').value = '';
+  lohmannWorkbook = null;
+  lohmannFilename = null;
+  lohmannTargetRow = null;
+  showLohmannStatus('ok', 'ℹ️ Injection annulée — réimportez votre fichier si besoin');
+}
+ 
+function confirmInject() {
+  if (!lohmannWorkbook || lohmannTargetRow === null) return;
+ 
+  const ws = lohmannWorkbook.Sheets[lohmannSheetName];
+  const row = lohmannTargetRow + 1; // XLSX est 1-indexé
+ 
+  const jours = DAYS.map((_, i) => ({
+    ponte_total: getVal(`j_total_${i}`) || 0
+  }));
+ 
+  const totalMort = DAYS.reduce((s, _, i) => s + (getVal(`j_mortalite_${i}`) || 0), 0);
+  const totalTotal = jours.reduce((s, j) => s + j.ponte_total, 0);
+  const totalDeclasses = DAYS.reduce((s, _, i) => s + (getVal(`j_declasses_${i}`) || 0), 0);
+  const totalEau = DAYS.reduce((s, _, i) => s + (getVal(`j_eau_${i}`) || 0), 0);
+  const totalAliment = DAYS.reduce((s, _, i) => s + (getVal(`j_aliment_${i}`) || 0), 0);
+  const livraison = getVal('f_livraison');
+ 
+  const setCell = (col, val) => {
+    if (val === null || val === undefined || val === '') return;
+    ws[col + row] = { v: val, t: typeof val === 'number' ? 'n' : 's' };
+  };
+ 
+  // Injection selon le mapping Lohmann V25.1
+  setCell('D', totalMort);
+  setCell('G', getVal('f_effectif_fin'));
+  const ponteCols = ['H','I','J','K','L','M','N'];
+  jours.forEach((j, i) => setCell(ponteCols[i], j.ponte_total));
+  setCell('P', totalTotal);
+  setCell('W', totalDeclasses);
+  setCell('AB', getVal('f_poids_oeufs'));
+  setCell('AM', livraison ? livraison * 1000 : null);
+  setCell('AP', getVal('f_conso_aliment'));
+  setCell('AV', getVal('f_pesee_poids') ? getVal('f_pesee_poids') * 1000 : null);
+  setCell('AW', getVal('f_pesee_homo'));
+  setCell('AY', totalEau);
+  setCell('BF', document.getElementById('f_observations').value || null);
+ 
+  // Générer et télécharger
+  const age = getVal('f_age');
+  const dateFin = document.getElementById('f_date_fin').value;
+  const filename = lohmannFilename.replace('.xlsx', `_S${age}_rempli.xlsx`);
+  const wbout = XLSX.write(lohmannWorkbook, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([wbout], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+ 
+  document.getElementById('downloadLink').href = url;
+  document.getElementById('downloadLink').download = filename;
+  document.getElementById('successSub').textContent =
+    `Semaine âge ${age||'?'} · ${totalTotal.toLocaleString('fr')} œufs · Ligne ${lohmannTargetRow+1} remplie`;
+ 
+  showSection('section-success');
+  updateSteps(3);
+  document.getElementById('step3').className = 'step done';
 }
  
 buildTable();
