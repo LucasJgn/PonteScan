@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/api/inject", "destination": "/api/inject.py" }
+  ]
+}
