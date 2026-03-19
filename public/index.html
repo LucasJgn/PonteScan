@@ -908,8 +908,14 @@ document.getElementById('lohmannInput').addEventListener('change', function(e) {
   const reader = new FileReader();
   reader.onload = ev => {
     try {
-      // Stocker le base64 pour envoi au serveur Python
-      lohmannFileBase64 = btoa(String.fromCharCode(...new Uint8Array(ev.target.result)));
+      // Conversion base64 robuste pour les gros fichiers
+      const bytes = new Uint8Array(ev.target.result);
+      let binary = '';
+      const chunkSize = 8192;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+      }
+      lohmannFileBase64 = btoa(binary);
       // Lire avec SheetJS uniquement pour trouver la ligne
       lohmannWorkbook = XLSX.read(ev.target.result, { type: 'array', cellDates: true, cellStyles: true });
       findLohmannRow();
