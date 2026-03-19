@@ -462,35 +462,89 @@ function buildTable() {
   });
 }
  
-document.getElementById('fileInput').addEventListener('change', function(e) {
+// Corrige l'orientation EXIF d'une image et retourne un base64 redressé
+function fixImageOrientation(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        // Lire l'orientation EXIF
+        const view = new DataView(ev.target.result);
+        let orientation = 1;
+        try {
+          if (view.getUint16(0, false) === 0xFFD8) {
+            let offset = 2;
+            while (offset < view.byteLength) {
+              const marker = view.getUint16(offset, false);
+              offset += 2;
+              if (marker === 0xFFE1) {
+                if (view.getUint32(offset += 2, false) === 0x45786966) {
+                  const little = view.getUint16(offset += 6, false) === 0x4949;
+                  offset += view.getUint32(offset + 4, little);
+                  const tags = view.getUint16(offset, little);
+                  for (let i = 0; i < tags; i++) {
+                    if (view.getUint16(offset + (i * 12) + 2, little) === 0x0112) {
+                      orientation = view.getUint16(offset + (i * 12) + 8, little);
+                    }
+                  }
+                }
+                break;
+              } else if ((marker & 0xFF00) !== 0xFF00) break;
+              else offset += view.getUint16(offset, false);
+            }
+          }
+        } catch(e) { orientation = 1; }
+ 
+        // Appliquer la rotation sur canvas
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const w = img.width, h = img.height;
+ 
+        if (orientation > 4) { canvas.width = h; canvas.height = w; }
+        else { canvas.width = w; canvas.height = h; }
+ 
+        switch(orientation) {
+          case 2: ctx.transform(-1,0,0,1,w,0); break;
+          case 3: ctx.transform(-1,0,0,-1,w,h); break;
+          case 4: ctx.transform(1,0,0,-1,0,h); break;
+          case 5: ctx.transform(0,1,1,0,0,0); break;
+          case 6: ctx.transform(0,1,-1,0,h,0); break;
+          case 7: ctx.transform(0,-1,-1,0,h,w); break;
+          case 8: ctx.transform(0,-1,1,0,0,w); break;
+        }
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/jpeg', 0.92));
+      };
+      img.src = URL.createObjectURL(file);
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+ 
+document.getElementById('fileInput').addEventListener('change', async function(e) {
   const file = e.target.files[0];
   if (!file) return;
-  currentPhotoMime = file.type || 'image/jpeg';
-  const reader = new FileReader();
-  reader.onload = ev => {
-    currentPhotoBase64 = ev.target.result.split(',')[1];
-    document.getElementById('photoPreview').src = ev.target.result;
-    analyzePhoto();
-  };
-  reader.readAsDataURL(file);
+  currentPhotoMime = 'image/jpeg';
+  const corrected = await fixImageOrientation(file);
+  currentPhotoBase64 = corrected.split(',')[1];
+  document.getElementById('photoPreview').src = corrected;
+  analyzePhoto();
 });
  
 const uploadZone = document.getElementById('uploadZone');
 uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-uploadZone.addEventListener('drop', e => {
+uploadZone.addEventListener('drop', async e => {
   e.preventDefault();
   uploadZone.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (!file) return;
-  currentPhotoMime = file.type || 'image/jpeg';
-  const reader = new FileReader();
-  reader.onload = ev => {
-    currentPhotoBase64 = ev.target.result.split(',')[1];
-    document.getElementById('photoPreview').src = ev.target.result;
-    analyzePhoto();
-  };
-  reader.readAsDataURL(file);
+  currentPhotoMime = 'image/jpeg';
+  const corrected = await fixImageOrientation(file);
+  currentPhotoBase64 = corrected.split(',')[1];
+  document.getElementById('photoPreview').src = corrected;
+  analyzePhoto();
 });
  
 function showSection(id) {
@@ -627,7 +681,7 @@ function populateForm(d) {
   });
   if (d.jours && d.jours.length === 7) {
     const effectif = d.effectif_debut || 6572;
-    const joursRemplis = d.jours.filter(j => j.ponte_total !== null);
+    const joursRemplis = d.jours.filter(j => j.ponte_total !== null && j.ponte_total > 0);
     const nbJours = joursRemplis.length || 7;
  
     const totalOeufs = d.jours.reduce((s, j) => s + (j.ponte_total || 0), 0);
@@ -635,10 +689,11 @@ function populateForm(d) {
     const totalEau = d.jours.reduce((s, j) => s + (j.eau_L || 0), 0);
     const totalAliment = d.jours.reduce((s, j) => s + (j.aliment_kg || 0), 0);
  
-    const pctPonte = effectif > 0 ? (totalOeufs / (effectif * nbJours) * 100) : null;
+    // Plafond à 99.9% — si > 100% c'est une erreur de lecture
+    const pctPonte = effectif > 0 ? Math.min((totalOeufs / (effectif * nbJours) * 100), 99.9) : null;
     const pctMort = effectif > 0 ? (totalMort / effectif * 100) : null;
-    const consoEau = effectif > 0 ? (totalEau * 1000 / nbJours / effectif) : null;
-    const consoAliment = effectif > 0 ? (totalAliment * 1000 / nbJours / effectif) : null;
+    const consoEau = effectif > 0 && nbJours > 0 ? (totalEau * 1000 / nbJours / effectif) : null;
+    const consoAliment = effectif > 0 && nbJours > 0 ? (totalAliment * 1000 / nbJours / effectif) : null;
  
     if (pctPonte !== null) set('f_pct_ponte', pctPonte.toFixed(2));
     if (pctMort !== null) set('f_pct_mortalite', pctMort.toFixed(3));
@@ -646,11 +701,28 @@ function populateForm(d) {
     if (consoAliment !== null) set('f_conso_aliment', consoAliment.toFixed(1));
   }
   if (d.jours && d.jours.length === 7) {
+    const effectif = d.effectif_debut || 6572;
     d.jours.forEach((j, i) => {
       set(`j_date_${i}`, j.date);
       set(`j_classes_${i}`, j.ponte_classes);
       set(`j_declasses_${i}`, j.ponte_declasses);
-      set(`j_total_${i}`, j.ponte_total);
+ 
+      // Validation ponte total : doit être entre 50% et 99% de l'effectif
+      const ponteMax = effectif * 0.99;
+      const ponteMin = effectif * 0.50;
+      const ponteTotal = j.ponte_total;
+      if (ponteTotal !== null && (ponteTotal > ponteMax || ponteTotal < ponteMin)) {
+        // Valeur suspecte — on met null et on laisse l'éleveur corriger
+        const el = document.getElementById(`j_total_${i}`);
+        if (el) {
+          el.value = '';
+          el.style.borderColor = 'var(--error)';
+          el.placeholder = `Suspect (${ponteTotal}) — vérifier`;
+        }
+      } else {
+        set(`j_total_${i}`, ponteTotal);
+      }
+ 
       set(`j_mortalite_${i}`, j.mortalite);
       set(`j_eau_${i}`, j.eau_L);
       set(`j_aliment_${i}`, j.aliment_kg);
