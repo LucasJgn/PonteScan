@@ -19,9 +19,9 @@
     --warn: #f0a030;
     --error: #f05858;
   }
- 
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
   body {
     background: var(--bg);
     color: var(--text);
@@ -29,7 +29,7 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
- 
+
   body::before {
     content: '';
     position: fixed;
@@ -41,7 +41,7 @@
     pointer-events: none;
     z-index: 0;
   }
- 
+
   .app {
     position: relative;
     z-index: 1;
@@ -49,7 +49,7 @@
     margin: 0 auto;
     padding: 24px 20px 60px;
   }
- 
+
   header {
     display: flex;
     align-items: center;
@@ -58,7 +58,7 @@
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border);
   }
- 
+
   .logo { display: flex; align-items: center; gap: 12px; }
   .logo-icon {
     width: 40px; height: 40px;
@@ -81,12 +81,12 @@
     color: var(--muted);
     padding: 4px 10px; border-radius: 20px;
   }
- 
+
   .steps { display: flex; gap: 6px; margin-bottom: 32px; }
   .step { flex: 1; height: 3px; background: var(--surface2); border-radius: 2px; transition: background 0.4s; }
   .step.active { background: var(--accent); }
   .step.done { background: var(--accent2); }
- 
+
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -100,7 +100,7 @@
     margin-bottom: 4px; font-family: 'DM Mono', monospace;
   }
   .card-heading { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
- 
+
   .upload-zone {
     border: 2px dashed var(--border);
     border-radius: 12px; padding: 40px 20px;
@@ -118,11 +118,11 @@
   .upload-icon { font-size: 48px; margin-bottom: 12px; display: block; }
   .upload-text { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
   .upload-hint { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
- 
+
   .preview-wrapper { position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
   .preview-wrapper img { width: 100%; display: block; border-radius: 12px; }
   .preview-overlay { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
- 
+
   .btn {
     display: inline-flex; align-items: center; gap: 8px;
     font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
@@ -150,7 +150,7 @@
     width: 100%; justify-content: center; font-size: 15px; padding: 14px;
   }
   .btn-success:hover { filter: brightness(1.1); }
- 
+
   .loading-state { text-align: center; padding: 40px 20px; }
   .spinner {
     width: 48px; height: 48px;
@@ -161,7 +161,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
   .loading-sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); }
- 
+
   .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
   .data-cell {
     background: var(--surface2); border: 1px solid var(--border);
@@ -178,7 +178,7 @@
     width: 100%; outline: none; padding: 0;
   }
   .data-input:focus { color: var(--accent); }
- 
+
   .table-scroll {
     overflow-x: auto; margin-bottom: 16px;
     border-radius: 10px; border: 1px solid var(--border);
@@ -199,7 +199,7 @@
   }
   td input:focus { border-color: var(--accent); background: rgba(184,240,88,0.05); color: var(--accent); }
   .jour-label { color: var(--accent); font-weight: 500; font-size: 11px; }
- 
+
   .info-box {
     background: rgba(184,240,88,0.06); border: 1px solid rgba(184,240,88,0.2);
     border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
@@ -217,16 +217,16 @@
     border-radius: 10px; padding: 16px; color: var(--error);
     font-family: 'DM Mono', monospace; font-size: 12px; margin-bottom: 16px;
   }
- 
+
   .section-sep {
     font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted);
     text-transform: uppercase; letter-spacing: 2px;
     margin: 20px 0 12px; display: flex; align-items: center; gap: 10px;
   }
   .section-sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
- 
+
   .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
- 
+
   .success-state { text-align: center; padding: 20px; }
   .success-icon {
     font-size: 64px; margin-bottom: 16px; display: block;
@@ -235,7 +235,7 @@
   @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .success-title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
   .success-sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 28px; }
- 
+
   /* Page d'accueil */
   .home-hero {
     text-align: center;
@@ -286,7 +286,7 @@
   }
   .home-step-text { font-size: 14px; font-weight: 700; }
   .home-step-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 2px; }
- 
+
   /* Historique */
   .history-item {
     background: var(--surface2);
@@ -306,11 +306,11 @@
   .history-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
   .history-arrow { color: var(--accent); font-size: 18px; }
   .history-empty { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); text-align: center; padding: 20px; }
- 
+
   .hidden { display: none !important; }
   .fade-in { animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
- 
+
   @media (max-width: 480px) {
     .data-grid { grid-template-columns: 1fr; }
     .tech-grid { grid-template-columns: 1fr; }
@@ -319,7 +319,7 @@
 </head>
 <body>
 <div class="app">
- 
+
   <header>
     <div class="logo">
       <div class="logo-icon">🥚</div>
@@ -330,13 +330,13 @@
     </div>
     <div class="badge">V1.0</div>
   </header>
- 
+
   <div class="steps">
     <div class="step active" id="step1"></div>
     <div class="step" id="step2"></div>
     <div class="step" id="step3"></div>
   </div>
- 
+
   <!-- PAGE D'ACCUEIL -->
   <div id="section-home" class="fade-in">
     <div class="home-hero">
@@ -344,7 +344,7 @@
       <div class="home-hero-title">PonteScan</div>
       <div class="home-hero-sub">Photo du cahier → Tableau de bord Lohmann rempli</div>
     </div>
- 
+
     <div class="home-steps">
       <div class="home-step">
         <div class="home-step-num">1</div>
@@ -375,18 +375,36 @@
         </div>
       </div>
     </div>
- 
-    <button class="btn btn-primary" onclick="startNewScan()" style="margin-bottom:20px;">
+
+    <button class="btn btn-primary" onclick="startNewScan()" style="margin-bottom:12px;">
       📷 Nouvelle saisie
     </button>
- 
+
+    <!-- Semaines en attente -->
+    <div id="waiting-section" class="hidden" style="margin-bottom:16px;">
+      <div class="card" style="border-color:rgba(184,240,88,0.4);">
+        <div class="card-title" style="margin-bottom:8px;">Semaines en attente</div>
+        <div id="waiting-list" style="margin-bottom:16px;"></div>
+        <div class="upload-zone" id="waitingLohmannZone" style="padding:20px 16px;margin-bottom:12px;">
+          <input type="file" id="waitingLohmannInput" accept=".xlsx,.xls">
+          <span class="upload-icon" style="font-size:28px;">📂</span>
+          <div class="upload-text" style="font-size:13px;">Importer fichier Lohmann</div>
+          <div class="upload-hint">Toutes les semaines du semaines en attente seront injectées</div>
+        </div>
+        <div id="waitingStatus" class="hidden" style="margin-bottom:12px;"></div>
+        <button class="btn btn-secondary" onclick="clearWaiting()" style="width:100%;justify-content:center;font-size:13px;">
+          🗑 Vider le semaines en attente
+        </button>
+      </div>
+    </div>
+
     <!-- Historique -->
     <div class="card">
       <div class="card-title" style="margin-bottom:12px;">Historique</div>
       <div id="history-list"></div>
     </div>
   </div>
- 
+
   <!-- ÉTAPE 1 : Upload -->
   <div id="section-upload" class="hidden fade-in">
     <div class="card">
@@ -404,7 +422,7 @@
       <div>Photographiez la fiche hebdomadaire remplie. L'IA va extraire toutes les données automatiquement.</div>
     </div>
   </div>
- 
+
   <!-- ÉTAPE 1b : Preview + rotation avant analyse -->
   <div id="section-preview" class="hidden fade-in">
     <div class="card">
@@ -424,7 +442,7 @@
       <div>La fiche doit être droite et lisible. Tournez si nécessaire avant d'analyser.</div>
     </div>
   </div>
- 
+
   <!-- ÉTAPE 2 : Chargement -->
   <div id="section-loading" class="hidden fade-in">
     <div class="card">
@@ -435,19 +453,19 @@
       </div>
     </div>
   </div>
- 
+
   <!-- ÉTAPE 3 : Vérification -->
   <div id="section-verify" class="hidden fade-in">
     <div class="card">
       <div class="card-title">Étape 2 / 3</div>
       <div class="card-heading">Vérifier & corriger</div>
- 
+
       <div id="errorBox" class="error-box hidden"></div>
- 
+
       <div class="preview-wrapper" style="margin-bottom:20px;">
         <img id="photoPreview2" src="" alt="Photo analysée" style="border-radius:10px;width:100%;">
       </div>
- 
+
       <div class="section-sep">Informations semaine</div>
       <div class="data-grid">
         <div class="data-cell">
@@ -487,7 +505,7 @@
           <input class="data-input" id="f_tours_chaine" type="text" placeholder="—">
         </div>
       </div>
- 
+
       <div class="section-sep">Production journalière</div>
       <div class="table-scroll">
         <table>
@@ -501,7 +519,7 @@
           <tbody id="tableBody"></tbody>
         </table>
       </div>
- 
+
       <div class="section-sep">Résultats techniques</div>
       <div class="tech-grid">
         <div class="data-cell">
@@ -542,25 +560,33 @@
         </div>
       </div>
     </div>
- 
+
     <div class="warn-box">
       <span>⚠️</span>
-      <div>Vérifiez les valeurs avant de générer le fichier. Modifiez directement dans les champs si besoin.</div>
+      <div>Vérifiez les valeurs avant de continuer. Modifiez directement dans les champs si besoin.</div>
     </div>
- 
+
+    <!-- Bouton semaines en attente -->
+    <button class="btn btn-primary" onclick="addToWaiting()" style="margin-bottom:12px;">
+      ➕ Ajouter au semaines en attente
+    </button>
+
+    <div style="text-align:center;margin:4px 0 4px;">
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">— ou injecter directement —</span>
+    </div>
+
     <!-- Option A : remplir fichier Lohmann personnel -->
-    <div class="card" style="margin-bottom:16px;">
-      <div class="card-title">Option 1 — Votre fichier Lohmann</div>
-      <div class="card-heading" style="font-size:16px;margin-bottom:14px;">Remplir mon tableau de bord</div>
-      <div class="upload-zone" id="lohmannZone" style="padding:24px 16px;">
+    <div class="card" style="margin-bottom:16px;margin-top:12px;">
+      <div class="card-title">Injection directe — Votre fichier Lohmann</div>
+      <div class="upload-zone" id="lohmannZone" style="padding:20px 16px;">
         <input type="file" id="lohmannInput" accept=".xlsx,.xls">
-        <span class="upload-icon" style="font-size:32px;">📂</span>
-        <div class="upload-text" style="font-size:14px;">Importer mon fichier Lohmann (.xlsx)</div>
-        <div class="upload-hint">Les données seront injectées dans la bonne ligne</div>
+        <span class="upload-icon" style="font-size:28px;">📂</span>
+        <div class="upload-text" style="font-size:13px;">Importer mon fichier Lohmann (.xlsx)</div>
+        <div class="upload-hint">Cette semaine uniquement</div>
       </div>
       <div id="lohmannStatus" class="hidden" style="margin-top:12px;"></div>
     </div>
- 
+
     <!-- Confirmation ligne trouvée -->
     <div id="section-confirm" class="hidden fade-in">
       <div class="card" style="border-color: rgba(184,240,88,0.4);">
@@ -573,8 +599,8 @@
         </div>
       </div>
     </div>
- 
-    <!-- Option B : export standard -->
+
+    <!-- Export standard -->
     <div style="text-align:center;margin:8px 0 4px;">
       <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">— ou —</span>
     </div>
@@ -582,7 +608,7 @@
       📊 Export Excel standard
     </button>
   </div>
- 
+
   <!-- ÉTAPE 4 : Succès -->
   <div id="section-success" class="hidden fade-in">
     <div class="card">
@@ -601,15 +627,15 @@
       </button>
     </div>
   </div>
- 
+
 </div>
- 
+
 <script>
 const DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 let currentPhotoBase64 = null;
 let currentPhotoMime = 'image/jpeg';
 let currentRotation = 0;
- 
+
 function rotatePhoto() {
   currentRotation = (currentRotation + 90) % 360;
   const img = document.getElementById('photoPreview');
@@ -635,7 +661,7 @@ function rotatePhoto() {
   };
   tmpImg.src = img.src;
 }
- 
+
 function buildTable() {
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
@@ -656,7 +682,7 @@ function buildTable() {
     tbody.appendChild(tr);
   });
 }
- 
+
 // Compression image avant envoi — 1500px max, qualité 0.85
 function compressImage(dataUrl) {
   return new Promise(resolve => {
@@ -709,7 +735,7 @@ function fixImageOrientation(file) {
             }
           }
         } catch(e) { orientation = 1; }
- 
+
         // Compression : max 1500px de large, qualité 0.75
         const MAX_SIZE = 1500;
         let cw = orientation > 4 ? h : w;
@@ -723,10 +749,10 @@ function fixImageOrientation(file) {
         const ctx = canvas.getContext('2d');
         canvas.width = cw;
         canvas.height = ch;
- 
+
         // Calculer le scale
         const scale = cw / (orientation > 4 ? h : w);
- 
+
         ctx.scale(scale, scale);
         switch(orientation) {
           case 2: ctx.transform(-1,0,0,1,w,0); break;
@@ -745,7 +771,7 @@ function fixImageOrientation(file) {
     reader.readAsArrayBuffer(file);
   });
 }
- 
+
 document.getElementById('fileInput').addEventListener('change', async function(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -757,7 +783,7 @@ document.getElementById('fileInput').addEventListener('change', async function(e
   document.getElementById('photoPreview').src = compressed;
   showSection('section-preview');
 });
- 
+
 const uploadZone = document.getElementById('uploadZone');
 uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
@@ -774,33 +800,33 @@ uploadZone.addEventListener('drop', async e => {
   document.getElementById('photoPreview').src = compressed;
   showSection('section-preview');
 });
- 
+
 function showSection(id) {
   ['section-home','section-upload','section-preview','section-loading','section-verify','section-success'].forEach(s => {
     document.getElementById(s).classList.add('hidden');
   });
   document.getElementById(id).classList.remove('hidden');
 }
- 
+
 function updateSteps(active) {
   for (let i = 1; i <= 3; i++) {
     const el = document.getElementById(`step${i}`);
     el.className = 'step' + (i < active ? ' done' : i === active ? ' active' : '');
   }
 }
- 
+
 async function analyzePhoto() {
   showSection('section-loading');
   updateSteps(2);
   buildTable();
- 
+
   const statusEl = document.getElementById('loadingStatus');
   statusEl.textContent = 'Envoi de la photo à l\'IA…';
- 
+
   const prompt = `Tu es un assistant agricole expert. Analyse cette photo d'une fiche hebdomadaire de production d'œufs (fiche Huttepain) et extrais TOUTES les données visibles.
- 
+
 Retourne UNIQUEMENT un JSON valide avec cette structure exacte (mets null pour les valeurs illisibles) :
- 
+
 {
   "semaine_num": null,
   "semaines_age": null,
@@ -837,14 +863,14 @@ Retourne UNIQUEMENT un JSON valide avec cette structure exacte (mets null pour l
   },
   "observations": null
 }
- 
+
 Le tableau "jours" doit avoir exactement 7 entrées (Lundi à Dimanche) dans l'ordre.
 Les dates sont au format YYYY-MM-DD si visible.
 Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
- 
+
   try {
     statusEl.textContent = 'Analyse par l\'IA…';
- 
+
     const response = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -853,11 +879,11 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
         mimeType: currentPhotoMime
       })
     });
- 
+
     const data = await response.json();
     if (data.error) throw new Error(data.error);
     statusEl.textContent = 'Structuration des données…';
- 
+
     // Nettoyage robuste de la réponse Gemini
     let raw = data.text || '';
     // Extraire le JSON entre accolades si entouré de texte
@@ -868,7 +894,7 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
     document.getElementById('photoPreview2').src = document.getElementById('photoPreview').src;
     showSection('section-verify');
     updateSteps(3);
- 
+
   } catch (err) {
     console.error('Erreur analyse:', err);
     document.getElementById('errorBox').textContent = '⚠️ Extraction incomplète (' + err.message + '). Vérifiez et complétez les champs manuellement.';
@@ -878,7 +904,7 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
     updateSteps(3);
   }
 }
- 
+
 function populateForm(d) {
   if (!d) return;
   const set = (id, val) => {
@@ -901,7 +927,7 @@ function populateForm(d) {
     set('f_pesee_poids', r.pesee_poules_poids_kg);
     set('f_pesee_homo', r.pesee_poules_homogeneite_pct);
   }
- 
+
   // Mettre en évidence les champs vides pour que l'éleveur les remplisse
   document.querySelectorAll('.data-input, td input').forEach(el => {
     if (el.value === '' || el.value === null) {
@@ -913,18 +939,18 @@ function populateForm(d) {
     const effectif = d.effectif_debut || 6572;
     const joursRemplis = d.jours.filter(j => j.ponte_total !== null && j.ponte_total > 0);
     const nbJours = joursRemplis.length || 7;
- 
+
     const totalOeufs = d.jours.reduce((s, j) => s + (j.ponte_total || 0), 0);
     const totalMort = d.jours.reduce((s, j) => s + (j.mortalite || 0), 0);
     const totalEau = d.jours.reduce((s, j) => s + (j.eau_L || 0), 0);
     const totalAliment = d.jours.reduce((s, j) => s + (j.aliment_kg || 0), 0);
- 
+
     // Plafond à 99.9% — si > 100% c'est une erreur de lecture
     const pctPonte = effectif > 0 ? Math.min((totalOeufs / (effectif * nbJours) * 100), 99.9) : null;
     const pctMort = effectif > 0 ? (totalMort / effectif * 100) : null;
     const consoEau = effectif > 0 && nbJours > 0 ? (totalEau * 1000 / nbJours / effectif) : null;
     const consoAliment = effectif > 0 && nbJours > 0 ? (totalAliment * 1000 / nbJours / effectif) : null;
- 
+
     if (pctPonte !== null) set('f_pct_ponte', pctPonte.toFixed(2));
     if (pctMort !== null) set('f_pct_mortalite', pctMort.toFixed(3));
     if (consoEau !== null) set('f_conso_eau', consoEau.toFixed(1));
@@ -936,7 +962,7 @@ function populateForm(d) {
       set(`j_date_${i}`, j.date);
       set(`j_classes_${i}`, j.ponte_classes);
       set(`j_declasses_${i}`, j.ponte_declasses);
- 
+
       // Validation ponte total : doit être entre 50% et 99% de l'effectif
       const ponteMax = effectif * 0.99;
       const ponteMin = effectif * 0.50;
@@ -952,7 +978,7 @@ function populateForm(d) {
       } else {
         set(`j_total_${i}`, ponteTotal);
       }
- 
+
       set(`j_mortalite_${i}`, j.mortalite);
       set(`j_eau_${i}`, j.eau_L);
       set(`j_aliment_${i}`, j.aliment_kg);
@@ -961,13 +987,13 @@ function populateForm(d) {
     });
   }
 }
- 
+
 function getVal(id) {
   const el = document.getElementById(id);
   if (!el || el.value === '') return null;
   return isNaN(el.value) ? el.value : parseFloat(el.value);
 }
- 
+
 function generateExcel() {
   const semaine = getVal('f_semaine_num');
   const age = getVal('f_age');
@@ -978,7 +1004,7 @@ function generateExcel() {
   const programmeLumineux = document.getElementById('f_programme_lumineux').value;
   const livraison = getVal('f_livraison');
   const observations = document.getElementById('f_observations').value;
- 
+
   const jours = DAYS.map((jour, i) => ({
     jour,
     date: document.getElementById(`j_date_${i}`).value,
@@ -991,7 +1017,7 @@ function generateExcel() {
     temp_min: getVal(`j_temp_min_${i}`),
     temp_max: getVal(`j_temp_max_${i}`)
   }));
- 
+
   const resultats = {
     pct_ponte: getVal('f_pct_ponte'),
     pct_mortalite: getVal('f_pct_mortalite'),
@@ -1002,10 +1028,10 @@ function generateExcel() {
     pesee_poids: getVal('f_pesee_poids'),
     pesee_homo: getVal('f_pesee_homo')
   };
- 
+
   const wb = XLSX.utils.book_new();
   const wsData = [];
- 
+
   wsData.push(['FICHE TECHNIQUE DE PRODUCTION - EARL DE LA ROULANDIÈRE - JUIGNÉ Lucas']);
   wsData.push([]);
   wsData.push(['Semaine N°', semaine, '', 'Semaines d\'âge', age]);
@@ -1015,7 +1041,7 @@ function generateExcel() {
   wsData.push(['Livraison aliment (T)', livraison]);
   wsData.push([]);
   wsData.push(['JOUR','DATE','PONTE CLASSÉES','PONTE DÉCLASSÉES','PONTE TOTAL','MORTALITÉ','EAU (L)','ALIMENT (KG)','T° MIN','T° MAX']);
- 
+
   let totalClasses=0, totalDeclasses=0, totalTotal=0, totalMort=0, totalEau=0, totalAliment=0;
   jours.forEach(j => {
     wsData.push([j.jour, j.date, j.ponte_classes, j.ponte_declasses, j.ponte_total, j.mortalite, j.eau_L, j.aliment_kg, j.temp_min, j.temp_max]);
@@ -1026,7 +1052,7 @@ function generateExcel() {
     totalEau += j.eau_L || 0;
     totalAliment += j.aliment_kg || 0;
   });
- 
+
   wsData.push(['TOTAL SEMAINE','', totalClasses, totalDeclasses, totalTotal, totalMort, totalEau.toFixed(1), totalAliment.toFixed(1),'','']);
   wsData.push([]);
   wsData.push(['RÉSULTATS TECHNIQUES']);
@@ -1040,11 +1066,11 @@ function generateExcel() {
   wsData.push(['Nb œufs / poule départ', resultats.oeufs_poule || '']);
   wsData.push([]);
   wsData.push(['OBSERVATIONS', observations]);
- 
+
   const ws = XLSX.utils.aoa_to_sheet(wsData);
   ws['!cols'] = [{wch:22},{wch:14},{wch:16},{wch:18},{wch:14},{wch:12},{wch:10},{wch:14},{wch:10},{wch:10}];
   XLSX.utils.book_append_sheet(wb, ws, 'Saisie semaine');
- 
+
   const ws2Data = [];
   ws2Data.push(['→ DONNÉES À COPIER DANS TABLEAU DE BORD LOHMANN V25.1']);
   ws2Data.push(['Colonne','Valeur','Description']);
@@ -1062,30 +1088,30 @@ function generateExcel() {
   ws2Data.push(['AW (Homogénéité %)', resultats.pesee_homo, 'Homogénéité (%)']);
   ws2Data.push(['AY (Conso eau L)', totalEau.toFixed(1), 'Consommation eau hebdo (L)']);
   ws2Data.push(['BF (Commentaire)', observations, 'Observations']);
- 
+
   const ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
   ws2['!cols'] = [{wch:22},{wch:20},{wch:35}];
   XLSX.utils.book_append_sheet(wb, ws2, 'Mapping Lohmann');
- 
+
   const filename = `PonteScan_S${semaine||'XX'}_Age${age||'XX'}_${dateFin||'date'}.xlsx`;
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
   const blob = new Blob([wbout], { type: 'application/octet-stream' });
   const url = URL.createObjectURL(blob);
- 
+
   document.getElementById('downloadLink').href = url;
   document.getElementById('downloadLink').download = filename;
   document.getElementById('successSub').textContent = `Semaine ${semaine||'?'} · Âge ${age||'?'} sem · ${totalTotal.toLocaleString('fr')} œufs`;
- 
+
   saveToHistory({ semaine, age, ponte: totalTotal, effectif: effectifDebut });
   showSection('section-success');
   updateSteps(3);
   document.getElementById('step3').className = 'step done';
 }
- 
+
 // ---- HISTORIQUE ----
 const HISTORY_KEY = 'pontescan_history';
 const MAX_HISTORY = 10;
- 
+
 function saveToHistory(data) {
   const history = getHistory();
   history.unshift({
@@ -1099,12 +1125,12 @@ function saveToHistory(data) {
   if (history.length > MAX_HISTORY) history.pop();
   localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
 }
- 
+
 function getHistory() {
   try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
   catch(e) { return []; }
 }
- 
+
 function renderHistory() {
   const list = document.getElementById('history-list');
   const history = getHistory();
@@ -1122,13 +1148,13 @@ function renderHistory() {
     </div>
   `).join('');
 }
- 
+
 function startNewScan() {
   document.querySelector('.steps').style.display = 'flex';
   showSection('section-upload');
   updateSteps(1);
 }
- 
+
 function goHome() {
   currentPhotoBase64 = null;
   lohmannWorkbook = null;
@@ -1141,10 +1167,11 @@ function goHome() {
   try { document.getElementById('section-confirm').classList.add('hidden'); } catch(e) {}
   buildTable();
   renderHistory();
+  renderWaiting();
   document.querySelector('.steps').style.display = 'none';
   showSection('section-home');
 }
- 
+
 function resetApp() {
   currentPhotoBase64 = null;
   lohmannWorkbook = null;
@@ -1157,14 +1184,14 @@ function resetApp() {
   updateSteps(1);
   buildTable();
 }
- 
+
 // ---- LOHMANN INJECT ----
 let lohmannWorkbook = null;
 let lohmannFilename = null;
 let lohmannTargetRow = null;
 let lohmannSheetName = null;
 let lohmannFileBase64 = null;
- 
+
 document.getElementById('lohmannInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -1189,25 +1216,25 @@ document.getElementById('lohmannInput').addEventListener('change', function(e) {
   };
   reader.readAsArrayBuffer(file);
 });
- 
+
 function findLohmannRow() {
   const age = getVal('f_age');
   const dateFin = document.getElementById('f_date_fin').value;
- 
+
   if (!age) {
     showLohmannStatus('error', '⚠️ Semaines d\'âge non renseignées — vérifiez l\'étape précédente');
     return;
   }
- 
+
   // Chercher l'onglet "Fiche technique de production" ou le premier onglet de données
   const sheetNames = lohmannWorkbook.SheetNames;
   let targetSheet = sheetNames.find(n => n.toLowerCase().includes('fiche') || n.toLowerCase().includes('production'));
   if (!targetSheet) targetSheet = sheetNames[0];
   lohmannSheetName = targetSheet;
- 
+
   const ws = lohmannWorkbook.Sheets[targetSheet];
   const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
- 
+
   // Chercher la ligne où colonne C (index 2) = age
   let foundRow = -1;
   for (let i = 0; i < data.length; i++) {
@@ -1217,37 +1244,37 @@ function findLohmannRow() {
       break;
     }
   }
- 
+
   if (foundRow === -1) {
     showLohmannStatus('error', `❌ Semaine d'âge ${age} introuvable dans l'onglet "${targetSheet}"`);
     return;
   }
- 
+
   lohmannTargetRow = foundRow;
- 
+
   // Afficher confirmation
   const rowData = data[foundRow];
   const dateCell = rowData[1];
   const dateStr = dateCell ? (dateCell instanceof Date ? dateCell.toLocaleDateString('fr') : dateCell) : '—';
- 
+
   document.getElementById('confirmMessage').textContent =
     `Semaine d'âge ${age} trouvée — ligne ${foundRow + 1} de l'onglet "${targetSheet}"`;
   document.getElementById('confirmDetail').innerHTML =
     `Date dans le fichier : <strong style="color:var(--accent)">${dateStr}</strong><br>` +
     `Date extraite de la fiche : <strong style="color:var(--accent)">${dateFin || '—'}</strong><br><br>` +
     `Les colonnes remplies : D (mortalité), G (effectif fin), H→N (ponte J1-J7), P (ponte hebdo), W (déclassés), AM (conso aliment kg), AY (conso eau L). Si renseignés : AB (poids œufs), AV (poids vif), AW (homogénéité), BF (observations)`;
- 
+
   document.getElementById('section-confirm').classList.remove('hidden');
   showLohmannStatus('ok', `✅ Ligne ${foundRow + 1} identifiée — vérifiez et confirmez ci-dessous`);
 }
- 
+
 function showLohmannStatus(type, msg) {
   const el = document.getElementById('lohmannStatus');
   el.classList.remove('hidden');
   el.className = type === 'error' ? 'error-box' : 'info-box';
   el.innerHTML = msg;
 }
- 
+
 function cancelInject() {
   document.getElementById('section-confirm').classList.add('hidden');
   document.getElementById('lohmannInput').value = '';
@@ -1257,21 +1284,21 @@ function cancelInject() {
   lohmannFileBase64 = null;
   showLohmannStatus('ok', 'ℹ️ Injection annulée — réimportez votre fichier si besoin');
 }
- 
+
 async function confirmInject() {
   if (!lohmannFileBase64 || lohmannTargetRow === null) return;
- 
+
   const btn = document.querySelector('#section-confirm .btn-primary');
   btn.disabled = true;
   btn.textContent = '⏳ Injection en cours…';
- 
+
   const jours = DAYS.map((_, i) => getVal(`j_total_${i}`) || 0);
   const totalMort = DAYS.reduce((s, _, i) => s + (getVal(`j_mortalite_${i}`) || 0), 0);
   const totalTotal = jours.reduce((s, v) => s + v, 0);
   const totalDeclasses = DAYS.reduce((s, _, i) => s + (getVal(`j_declasses_${i}`) || 0), 0);
   const totalEau = DAYS.reduce((s, _, i) => s + (getVal(`j_eau_${i}`) || 0), 0);
   const totalAliment = DAYS.reduce((s, _, i) => s + (getVal(`j_aliment_${i}`) || 0), 0);
- 
+
   const values = {
     mortalite: totalMort || null,
     effectif_fin: getVal('f_effectif_fin'),
@@ -1291,7 +1318,7 @@ async function confirmInject() {
     homogeneite: getVal('f_pesee_homo') || null,
     observations: document.getElementById('f_observations').value || null
   };
- 
+
   try {
     const response = await fetch('/api/inject', {
       method: 'POST',
@@ -1302,36 +1329,205 @@ async function confirmInject() {
         values
       })
     });
- 
+
     const data = await response.json();
     if (!response.ok || data.error) throw new Error(data.error || 'Erreur serveur');
- 
+
     // Télécharger le fichier retourné
     const bytes = Uint8Array.from(atob(data.fileBase64), c => c.charCodeAt(0));
     const blob = new Blob([bytes], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     const age = getVal('f_age');
     const filename = lohmannFilename.replace('.xlsx', `_S${age}_rempli.xlsx`);
- 
+
     document.getElementById('downloadLink').href = url;
     document.getElementById('downloadLink').download = filename;
     document.getElementById('successSub').textContent =
       `Semaine âge ${age||'?'} · ${totalTotal.toLocaleString('fr')} œufs · Ligne ${data.rowFound} remplie`;
- 
+
     saveToHistory({ semaine: getVal('f_semaine_num'), age, ponte: totalTotal, effectif: getVal('f_effectif_debut') });
     showSection('section-success');
     updateSteps(3);
     document.getElementById('step3').className = 'step done';
- 
+
   } catch(err) {
     btn.disabled = false;
     btn.textContent = '✅ Confirmer et télécharger';
     showLohmannStatus('error', '❌ Erreur injection : ' + err.message);
   }
 }
- 
+
+// ---- SEMAINES EN ATTENTE ----
+const WAITING_KEY = 'pontescan_waiting';
+
+function getWaiting() {
+  try { return JSON.parse(localStorage.getItem(WAITING_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveWaiting(list) {
+  localStorage.setItem(WAITING_KEY, JSON.stringify(list));
+}
+
+function collectCurrentData() {
+  const jours = DAYS.map((_, i) => ({
+    ponte_total: getVal(`j_total_${i}`) || null,
+    mortalite: getVal(`j_mortalite_${i}`) || null,
+    eau_L: getVal(`j_eau_${i}`) || null,
+    aliment_kg: getVal(`j_aliment_${i}`) || null,
+    declasses: getVal(`j_declasses_${i}`) || null
+  }));
+  const totalTotal = jours.reduce((s, j) => s + (j.ponte_total || 0), 0);
+  const totalMort = jours.reduce((s, j) => s + (j.mortalite || 0), 0);
+  const totalEau = jours.reduce((s, j) => s + (j.eau_L || 0), 0);
+  const totalAliment = jours.reduce((s, j) => s + (j.aliment_kg || 0), 0);
+  const totalDeclasses = jours.reduce((s, j) => s + (j.declasses || 0), 0);
+  return {
+    age: getVal('f_age'),
+    semaine: getVal('f_semaine_num'),
+    effectif_fin: getVal('f_effectif_fin'),
+    ponte_hebdo: totalTotal,
+    mortalite: totalMort,
+    conso_eau_L: totalEau,
+    conso_aliment_kg: totalAliment,
+    declasses: totalDeclasses,
+    poids_oeufs: getVal('f_poids_oeufs'),
+    poids_vif: getVal('f_pesee_poids') ? getVal('f_pesee_poids') * 1000 : null,
+    homogeneite: getVal('f_pesee_homo'),
+    observations: document.getElementById('f_observations').value || null,
+    ponte_j1: jours[0].ponte_total, ponte_j2: jours[1].ponte_total,
+    ponte_j3: jours[2].ponte_total, ponte_j4: jours[3].ponte_total,
+    ponte_j5: jours[4].ponte_total, ponte_j6: jours[5].ponte_total,
+    ponte_j7: jours[6].ponte_total
+  };
+}
+
+function addToWaiting() {
+  const data = collectCurrentData();
+  if (!data.age) {
+    alert('Semaines d\'âge manquant — vérifiez les données avant d\'ajouter.');
+    return;
+  }
+  const waiting = getWaiting();
+  // Remplacer si même âge déjà présent
+  const idx = waiting.findIndex(w => w.age === data.age);
+  if (idx >= 0) waiting[idx] = data;
+  else waiting.push(data);
+  waiting.sort((a, b) => a.age - b.age);
+  saveWaiting(waiting);
+  goHome();
+}
+
+function clearWaiting() {
+  if (confirm('Vider toutes les semaines en attente ?')) {
+    localStorage.removeItem(WAITING_KEY);
+    renderWaiting();
+  }
+}
+
+function removeFromWaiting(age) {
+  const waiting = getWaiting().filter(w => w.age !== age);
+  saveWaiting(waiting);
+  renderWaiting();
+}
+
+function renderWaiting() {
+  const waiting = getWaiting();
+  const section = document.getElementById('waiting-section');
+  const list = document.getElementById('waiting-list');
+
+  if (waiting.length === 0) {
+    section.classList.add('hidden');
+    return;
+  }
+
+  section.classList.remove('hidden');
+  list.innerHTML = waiting.map(w => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-weight:700;font-size:14px;">Semaine ${w.semaine||'?'} — Âge ${w.age} sem</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">${w.ponte_hebdo ? w.ponte_hebdo.toLocaleString('fr') + ' œufs' : '—'}</div>
+      </div>
+      <button onclick="removeFromWaiting(${w.age})" style="background:none;border:none;color:var(--error);cursor:pointer;font-size:18px;">✕</button>
+    </div>
+  `).join('');
+}
+
+// Injection groupée depuis la page d'accueil
+document.getElementById('waitingLohmannInput').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const waiting = getWaiting();
+  if (waiting.length === 0) {
+    showWaitingStatus('error', '⚠️ Aucune semaine en attente');
+    return;
+  }
+
+  const statusEl = document.getElementById('waitingStatus');
+  statusEl.classList.remove('hidden');
+  statusEl.className = 'info-box';
+  statusEl.innerHTML = `⏳ Injection de ${waiting.length} semaine(s) en cours…`;
+
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    try {
+      const bytes = new Uint8Array(ev.target.result);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i += 8192)
+        binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+      let fileB64 = btoa(binary);
+
+      // Injection séquentielle de chaque semaine
+      for (let i = 0; i < waiting.length; i++) {
+        const w = waiting[i];
+        statusEl.innerHTML = `⏳ Injection semaine âge ${w.age} (${i+1}/${waiting.length})…`;
+
+        const response = await fetch('/api/inject', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileBase64: fileB64, age: w.age, values: w })
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(`Âge ${w.age} : ${data.error}`);
+        fileB64 = data.fileBase64; // fichier mis à jour pour la prochaine itération
+      }
+
+      // Télécharger le fichier final
+      const outBytes = Uint8Array.from(atob(fileB64), c => c.charCodeAt(0));
+      const blob = new Blob([outBytes], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = file.name.replace('.xlsx', `_${waiting.length}semaines_rempli.xlsx`);
+      link.click();
+
+      statusEl.className = 'info-box';
+      statusEl.innerHTML = `✅ ${waiting.length} semaine(s) injectée(s) avec succès !`;
+
+      // Sauvegarder dans l'historique et vider l'attente
+      waiting.forEach(w => saveToHistory({ semaine: w.semaine, age: w.age, ponte: w.ponte_hebdo, effectif: w.effectif_fin }));
+      localStorage.removeItem(WAITING_KEY);
+      renderWaiting();
+      renderHistory();
+
+    } catch(err) {
+      statusEl.className = 'error-box';
+      statusEl.innerHTML = '❌ Erreur : ' + err.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+function showWaitingStatus(type, msg) {
+  const el = document.getElementById('waitingStatus');
+  el.classList.remove('hidden');
+  el.className = type === 'error' ? 'error-box' : 'info-box';
+  el.innerHTML = msg;
+}
+
 buildTable();
 renderHistory();
+renderWaiting();
 document.querySelector('.steps').style.display = 'none';
 showSection('section-home');
 </script>
