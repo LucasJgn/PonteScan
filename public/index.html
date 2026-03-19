@@ -411,13 +411,6 @@
       <div class="card-title">Étape 1 / 3</div>
       <div class="card-heading">Photo du cahier</div>
 
-      <!-- Avertissement orientation -->
-      <div id="rotate-warning" style="display:none;text-align:center;padding:30px 20px;">
-        <div style="font-size:48px;margin-bottom:12px;">↺</div>
-        <div style="font-size:16px;font-weight:800;margin-bottom:8px;">Tournez votre téléphone</div>
-        <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);">La caméra fonctionne uniquement en mode paysage</div>
-      </div>
-
       <!-- Caméra en direct -->
       <div id="camera-wrapper" style="position:relative;border-radius:12px;overflow:hidden;background:#000;margin-bottom:12px;display:none;">
         <video id="cameraVideo" autoplay playsinline style="width:100%;display:block;border-radius:12px;"></video>
@@ -425,16 +418,16 @@
         <div id="a4-overlay" style="display:none;position:absolute;inset:0;pointer-events:none;">
           <!-- Zone sombre autour du cadre A4 -->
           <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
-          <!-- Cadre A4 — 90% de la largeur, hauteur calculée pour ratio A4 paysage -->
+          <!-- Cadre A4 portrait centré (ratio 1:1.414) -->
           <div id="a4-frame" style="
             position:absolute;
-            left:5%; right:5%;
-            top:50%; transform:translateY(-50%);
-            aspect-ratio: 1.414 / 1;
+            top:5%; bottom:5%;
+            left:50%; transform:translateX(-50%);
+            aspect-ratio: 1 / 1.414;
             border:2px solid var(--accent);
             border-radius:4px;
             background:transparent;
-            box-shadow:0 0 0 9999px rgba(0,0,0,0.35);
+            box-shadow:0 0 0 9999px rgba(0,0,0,0.4);
           ">
             <!-- Grille tiers intérieure -->
             <div style="position:absolute;inset:0;
@@ -486,39 +479,44 @@
   <div id="section-preview" class="hidden fade-in">
     <div class="card">
       <div class="card-title">Étape 1 / 3</div>
-      <div class="card-heading">Vérifier l'orientation</div>
-      <div class="preview-wrapper" style="margin-bottom:8px;position:relative;">
-        <img id="photoPreview" src="" alt="Photo">
-        <!-- Grille de cadrage -->
-        <div id="cadrage-grid" style="
-          position:absolute;inset:0;pointer-events:none;
-          background-image:
-            linear-gradient(rgba(184,240,88,0.5) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(184,240,88,0.5) 1px, transparent 1px),
-            linear-gradient(rgba(184,240,88,0.2) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(184,240,88,0.2) 1px, transparent 1px);
-          background-size: 33.33% 33.33%, 33.33% 33.33%, 11.11% 11.11%, 11.11% 11.11%;
-          border-radius:12px;
+      <div class="card-heading">Cadrer la photo</div>
+
+      <!-- Zone de recadrage -->
+      <div id="crop-container" style="position:relative;overflow:hidden;border-radius:12px;background:#000;margin-bottom:12px;touch-action:none;user-select:none;">
+        <img id="photoPreview" src="" alt="Photo" style="display:block;width:100%;opacity:0.5;">
+        <!-- Zone de sélection -->
+        <div id="crop-selection" style="
+          position:absolute;
+          border:2px solid var(--accent);
+          box-shadow:0 0 0 9999px rgba(0,0,0,0.5);
+          cursor:move;
+          touch-action:none;
         ">
-          <!-- Coins de cadrage -->
-          <div style="position:absolute;top:8px;left:8px;width:24px;height:24px;border-top:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:3px 0 0 0;"></div>
-          <div style="position:absolute;top:8px;right:8px;width:24px;height:24px;border-top:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 3px 0 0;"></div>
-          <div style="position:absolute;bottom:8px;left:8px;width:24px;height:24px;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:0 0 0 3px;"></div>
-          <div style="position:absolute;bottom:8px;right:8px;width:24px;height:24px;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 0 3px 0;"></div>
+          <!-- Grille tiers intérieure -->
+          <div style="position:absolute;inset:0;pointer-events:none;
+            background-image:
+              linear-gradient(rgba(184,240,88,0.3) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(184,240,88,0.3) 1px, transparent 1px);
+            background-size:33.33% 33.33%,33.33% 33.33%;
+          "></div>
+          <!-- Coins -->
+          <div class="crop-handle" data-pos="tl" style="position:absolute;top:-6px;left:-6px;width:16px;height:16px;background:var(--accent);border-radius:3px;cursor:nw-resize;touch-action:none;"></div>
+          <div class="crop-handle" data-pos="tr" style="position:absolute;top:-6px;right:-6px;width:16px;height:16px;background:var(--accent);border-radius:3px;cursor:ne-resize;touch-action:none;"></div>
+          <div class="crop-handle" data-pos="bl" style="position:absolute;bottom:-6px;left:-6px;width:16px;height:16px;background:var(--accent);border-radius:3px;cursor:sw-resize;touch-action:none;"></div>
+          <div class="crop-handle" data-pos="br" style="position:absolute;bottom:-6px;right:-6px;width:16px;height:16px;background:var(--accent);border-radius:3px;cursor:se-resize;touch-action:none;"></div>
         </div>
       </div>
-      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);text-align:center;margin-bottom:14px;">
-        📐 Alignez les bords de la fiche avec la grille
+
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-align:center;margin-bottom:14px;">
+        Déplacez et redimensionnez le cadre pour sélectionner la fiche
       </div>
+
       <div style="display:flex;gap:10px;margin-bottom:12px;">
         <button class="btn btn-secondary" onclick="rotatePhoto()" style="flex:1;justify-content:center;">↻ Tourner 90°</button>
-        <button class="btn btn-ghost" onclick="resetApp()">↩ Rechoisir</button>
+        <button class="btn btn-secondary" onclick="resetCrop()" style="flex:1;justify-content:center;">⊠ Reset cadre</button>
+        <button class="btn btn-ghost" onclick="resetApp()">↩</button>
       </div>
-      <button class="btn btn-primary" onclick="analyzePhoto()">🔍 Analyser cette photo</button>
-    </div>
-    <div class="info-box">
-      <span>ℹ️</span>
-      <div>La fiche doit être droite et bien cadrée. Les lignes vertes aident à vérifier l'alignement.</div>
+      <button class="btn btn-primary" onclick="cropAndAnalyze()">✂️ Recadrer et analyser</button>
     </div>
   </div>
 
@@ -752,6 +750,7 @@ function rotatePhoto() {
     const rotated = canvas.toDataURL('image/jpeg', 0.82);
     currentPhotoBase64 = rotated.split(',')[1];
     img.src = rotated;
+    setTimeout(initCrop, 100);
   };
   tmpImg.src = img.src;
 }
@@ -857,7 +856,7 @@ document.getElementById('fileInput').addEventListener('change', async function(e
   const processed = await processImage(file);
   currentPhotoBase64 = processed.startsWith('data:') ? processed.split(',')[1] : null;
   document.getElementById('photoPreview').src = processed;
-  showSection('section-preview');
+  showSection('section-preview'); setTimeout(initCrop, 150);
 });
 
 const uploadZone = document.getElementById('uploadZone');
@@ -873,7 +872,7 @@ uploadZone.addEventListener('drop', async e => {
   const processed = await processImage(file);
   currentPhotoBase64 = processed.startsWith('data:') ? processed.split(',')[1] : null;
   document.getElementById('photoPreview').src = processed;
-  showSection('section-preview');
+  showSection('section-preview'); setTimeout(initCrop, 150);
 });
 
 function showSection(id) {
@@ -1240,41 +1239,143 @@ function generateExcel() {
   document.getElementById('step3').className = 'step done';
 }
 
-// ---- CAMÉRA ----
+// ---- RECADRAGE ----
+let cropState = { x: 0.05, y: 0.05, w: 0.9, h: 0.9 }; // en % de l'image affichée
+let dragState = null;
+
+function initCrop() {
+  const container = document.getElementById('crop-container');
+  const sel = document.getElementById('crop-selection');
+
+  // Position initiale : 90% centré
+  cropState = { x: 0.05, y: 0.05, w: 0.90, h: 0.90 };
+  updateCropUI();
+
+  // Drag sur la sélection (déplacer)
+  sel.addEventListener('pointerdown', e => {
+    if (e.target.classList.contains('crop-handle')) return;
+    e.preventDefault();
+    const rect = container.getBoundingClientRect();
+    dragState = { type: 'move', startX: e.clientX, startY: e.clientY, ox: cropState.x, oy: cropState.y };
+    sel.setPointerCapture(e.pointerId);
+  });
+
+  sel.addEventListener('pointermove', e => {
+    if (!dragState || dragState.type !== 'move') return;
+    const rect = container.getBoundingClientRect();
+    const dx = (e.clientX - dragState.startX) / rect.width;
+    const dy = (e.clientY - dragState.startY) / rect.height;
+    cropState.x = Math.max(0, Math.min(1 - cropState.w, dragState.ox + dx));
+    cropState.y = Math.max(0, Math.min(1 - cropState.h, dragState.oy + dy));
+    updateCropUI();
+  });
+
+  sel.addEventListener('pointerup', () => dragState = null);
+
+  // Drag sur les coins (redimensionner)
+  document.querySelectorAll('.crop-handle').forEach(handle => {
+    handle.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = container.getBoundingClientRect();
+      dragState = {
+        type: 'resize', pos: handle.dataset.pos,
+        startX: e.clientX, startY: e.clientY,
+        ox: cropState.x, oy: cropState.y, ow: cropState.w, oh: cropState.h
+      };
+      handle.setPointerCapture(e.pointerId);
+    });
+
+    handle.addEventListener('pointermove', e => {
+      if (!dragState || dragState.type !== 'resize') return;
+      const rect = container.getBoundingClientRect();
+      const dx = (e.clientX - dragState.startX) / rect.width;
+      const dy = (e.clientY - dragState.startY) / rect.height;
+      const MIN = 0.1;
+      let { ox, oy, ow, oh } = dragState;
+
+      if (dragState.pos === 'br') {
+        cropState.w = Math.max(MIN, Math.min(1 - ox, ow + dx));
+        cropState.h = Math.max(MIN, Math.min(1 - oy, oh + dy));
+      } else if (dragState.pos === 'bl') {
+        const newW = Math.max(MIN, ow - dx);
+        cropState.x = Math.max(0, ox + ow - newW);
+        cropState.w = newW;
+        cropState.h = Math.max(MIN, Math.min(1 - oy, oh + dy));
+      } else if (dragState.pos === 'tr') {
+        cropState.w = Math.max(MIN, Math.min(1 - ox, ow + dx));
+        const newH = Math.max(MIN, oh - dy);
+        cropState.y = Math.max(0, oy + oh - newH);
+        cropState.h = newH;
+      } else if (dragState.pos === 'tl') {
+        const newW = Math.max(MIN, ow - dx);
+        cropState.x = Math.max(0, ox + ow - newW);
+        cropState.w = newW;
+        const newH = Math.max(MIN, oh - dy);
+        cropState.y = Math.max(0, oy + oh - newH);
+        cropState.h = newH;
+      }
+      updateCropUI();
+    });
+
+    handle.addEventListener('pointerup', () => dragState = null);
+  });
+}
+
+function updateCropUI() {
+  const sel = document.getElementById('crop-selection');
+  sel.style.left = (cropState.x * 100) + '%';
+  sel.style.top = (cropState.y * 100) + '%';
+  sel.style.width = (cropState.w * 100) + '%';
+  sel.style.height = (cropState.h * 100) + '%';
+}
+
+function resetCrop() {
+  cropState = { x: 0.05, y: 0.05, w: 0.90, h: 0.90 };
+  updateCropUI();
+}
+
+async function cropAndAnalyze() {
+  const img = document.getElementById('photoPreview');
+  const canvas = document.createElement('canvas');
+
+  // Dimensions réelles de l'image source
+  const srcW = img.naturalWidth;
+  const srcH = img.naturalHeight;
+
+  const cx = Math.round(cropState.x * srcW);
+  const cy = Math.round(cropState.y * srcH);
+  const cw = Math.round(cropState.w * srcW);
+  const ch = Math.round(cropState.h * srcH);
+
+  canvas.width = cw;
+  canvas.height = ch;
+  canvas.getContext('2d').drawImage(img, cx, cy, cw, ch, 0, 0, cw, ch);
+
+  const cropped = canvas.toDataURL('image/jpeg', 0.85);
+  currentPhotoBase64 = cropped.split(',')[1];
+
+  // Mettre à jour la preview avec l'image recadrée
+  document.getElementById('photoPreview2').src = cropped;
+
+  analyzePhoto();
+}
 let cameraStream = null;
 
 async function startCamera() {
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: 'environment',
-        width: { ideal: 1920 },
-        height: { ideal: 1080 }
-      }
+      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
     });
     const video = document.getElementById('cameraVideo');
     video.srcObject = cameraStream;
-
     document.getElementById('camera-wrapper').style.display = 'block';
     document.getElementById('a4-overlay').style.display = 'block';
     document.getElementById('camera-controls').style.display = 'block';
     document.getElementById('upload-buttons').style.display = 'none';
-
-    // Surveiller l'orientation
-    checkOrientation();
-    window.addEventListener('orientationchange', checkOrientation);
-    window.addEventListener('resize', checkOrientation);
   } catch(err) {
     alert('Impossible d\'accéder à la caméra. Utilisez l\'import galerie.');
   }
-}
-
-function checkOrientation() {
-  const isLandscape = window.innerWidth > window.innerHeight;
-  document.getElementById('rotate-warning').style.display = isLandscape ? 'none' : 'block';
-  document.getElementById('cameraVideo').style.display = isLandscape ? 'block' : 'none';
-  document.getElementById('a4-overlay').style.display = isLandscape ? 'block' : 'none';
-  document.getElementById('camera-controls').querySelector('button').disabled = !isLandscape;
 }
 
 function stopCamera() {
@@ -1282,11 +1383,8 @@ function stopCamera() {
     cameraStream.getTracks().forEach(t => t.stop());
     cameraStream = null;
   }
-  window.removeEventListener('orientationchange', checkOrientation);
-  window.removeEventListener('resize', checkOrientation);
   document.getElementById('camera-wrapper').style.display = 'none';
   document.getElementById('a4-overlay').style.display = 'none';
-  document.getElementById('rotate-warning').style.display = 'none';
   document.getElementById('camera-controls').style.display = 'none';
   document.getElementById('upload-buttons').style.display = 'block';
 }
@@ -1298,12 +1396,28 @@ async function takePicture() {
   canvas.height = video.videoHeight;
   canvas.getContext('2d').drawImage(video, 0, 0);
   stopCamera();
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-  currentPhotoBase64 = dataUrl.split(',')[1];
-  currentPhotoMime = 'image/jpeg';
-  currentRotation = 0;
-  document.getElementById('photoPreview').src = dataUrl;
-  showSection('section-preview');
+
+  // Auto-rotation si portrait → paysage
+  let dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+  const tmpImg = new Image();
+  tmpImg.onload = () => {
+    if (tmpImg.height > tmpImg.width) {
+      const rotCanvas = document.createElement('canvas');
+      rotCanvas.width = tmpImg.height;
+      rotCanvas.height = tmpImg.width;
+      const ctx = rotCanvas.getContext('2d');
+      ctx.translate(rotCanvas.width / 2, rotCanvas.height / 2);
+      ctx.rotate(Math.PI / 2);
+      ctx.drawImage(tmpImg, -tmpImg.width / 2, -tmpImg.height / 2);
+      dataUrl = rotCanvas.toDataURL('image/jpeg', 0.9);
+    }
+    currentPhotoBase64 = dataUrl.split(',')[1];
+    currentPhotoMime = 'image/jpeg';
+    currentRotation = 0;
+    document.getElementById('photoPreview').src = dataUrl;
+    showSection('section-preview'); setTimeout(initCrop, 150);
+  };
+  tmpImg.src = dataUrl;
 }
 
 // ---- HISTORIQUE ----
