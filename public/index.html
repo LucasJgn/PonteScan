@@ -974,6 +974,40 @@ function populateForm(d) {
       set(`j_temp_max_${i}`, j.temp_max);
     });
   }
+
+  // Vérification cumuls + calcul oeufs/poule
+  if (d.jours) {
+    const effectif = d.effectif_debut || 6572;
+    const totalPonte = d.jours.reduce((s, j) => s + (j.ponte_total || 0), 0);
+    const totalEau = d.jours.reduce((s, j) => s + (j.eau_L || 0), 0);
+    const totalAliment = d.jours.reduce((s, j) => s + (j.aliment_kg || 0), 0);
+
+    // Vérification ponte
+    if (d.ponte_total_semaine && Math.abs(totalPonte - d.ponte_total_semaine) > 50) {
+      showCumulWarning('ponte', totalPonte, d.ponte_total_semaine);
+    }
+    // Vérification eau
+    if (d.eau_cumul_semaine && Math.abs(totalEau - d.eau_cumul_semaine) > 20) {
+      showCumulWarning('eau', totalEau.toFixed(0), d.eau_cumul_semaine);
+    }
+    // Vérification aliment
+    if (d.aliment_cumul_semaine && Math.abs(totalAliment - d.aliment_cumul_semaine) > 20) {
+      showCumulWarning('aliment', totalAliment.toFixed(0), d.aliment_cumul_semaine);
+    }
+
+    // Calcul oeufs/poule depuis cumul lot
+    if (d.ponte_cumul_lot && effectif > 0) {
+      set('f_oeufs_poule', (d.ponte_cumul_lot / effectif).toFixed(3));
+    }
+  }
+}
+
+function showCumulWarning(type, calcule, lu) {
+  const labels = { ponte: 'Ponte totale', eau: 'Eau totale (L)', aliment: 'Aliment total (kg)' };
+  const errorBox = document.getElementById('errorBox');
+  errorBox.classList.remove('hidden');
+  const existing = errorBox.innerHTML.replace('⚠️ ', '');
+  errorBox.innerHTML = `⚠️ ${existing ? existing + '<br>' : ''}${labels[type]} : calculé ${calcule} ≠ lu sur fiche ${lu} — vérifiez les journées`;
 }
 
 function getVal(id) {
@@ -1439,7 +1473,7 @@ function toggleComparison() {
 
   const std = LOHMANN_STANDARDS[age];
   const pctPonte = getVal('f_pct_ponte');
-  const oeufPoule = getVal('f_oeufs_poule');
+  const oeufPoule = getVal('f_oeufs_poule'); // calculé depuis ponte_cumul_lot / effectif
 
   let html = '';
 
