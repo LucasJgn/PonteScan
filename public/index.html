@@ -306,6 +306,7 @@
       <div class="preview-wrapper">
         <img id="photoPreview" src="" alt="Photo analysée">
         <div class="preview-overlay">
+          <button class="btn btn-ghost" onclick="rotatePhoto()" title="Tourner la photo">↻ Rotation</button>
           <button class="btn btn-ghost" onclick="resetApp()">↩ Nouvelle photo</button>
         </div>
       </div>
@@ -470,6 +471,31 @@
 const DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 let currentPhotoBase64 = null;
 let currentPhotoMime = 'image/jpeg';
+let currentRotation = 0;
+ 
+function rotatePhoto() {
+  currentRotation = (currentRotation + 90) % 360;
+  const img = document.getElementById('photoPreview');
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const tmpImg = new Image();
+  tmpImg.onload = () => {
+    if (currentRotation % 180 === 90) {
+      canvas.width = tmpImg.height;
+      canvas.height = tmpImg.width;
+    } else {
+      canvas.width = tmpImg.width;
+      canvas.height = tmpImg.height;
+    }
+    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.rotate((currentRotation * Math.PI) / 180);
+    ctx.drawImage(tmpImg, -tmpImg.width/2, -tmpImg.height/2);
+    const rotated = canvas.toDataURL('image/jpeg', 0.92);
+    currentPhotoBase64 = rotated.split(',')[1];
+    img.src = rotated;
+  };
+  tmpImg.src = img.src;
+}
  
 function buildTable() {
   const tbody = document.getElementById('tableBody');
