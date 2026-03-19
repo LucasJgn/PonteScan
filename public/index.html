@@ -439,6 +439,7 @@
 <script>
 const DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 let currentPhotoBase64 = null;
+let currentPhotoMime = 'image/jpeg';
 
 function buildTable() {
   const tbody = document.getElementById('tableBody');
@@ -464,6 +465,7 @@ function buildTable() {
 document.getElementById('fileInput').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file) return;
+  currentPhotoMime = file.type || 'image/jpeg';
   const reader = new FileReader();
   reader.onload = ev => {
     currentPhotoBase64 = ev.target.result.split(',')[1];
@@ -481,6 +483,7 @@ uploadZone.addEventListener('drop', e => {
   uploadZone.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (!file) return;
+  currentPhotoMime = file.type || 'image/jpeg';
   const reader = new FileReader();
   reader.onload = ev => {
     currentPhotoBase64 = ev.target.result.split(',')[1];
@@ -564,23 +567,16 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: currentPhotoBase64 } },
-            { type: 'text', text: prompt }
-          ]
-        }]
+        imageBase64: currentPhotoBase64,
+        mimeType: currentPhotoMime
       })
     });
 
     const data = await response.json();
+    if (data.error) throw new Error(data.error);
     statusEl.textContent = 'Structuration des données…';
 
-    const rawText = data.content.map(b => b.text || '').join('');
-    const clean = rawText.replace(/```json|```/g, '').trim();
+    const clean = data.text.replace(/```json|```/g, '').trim();
     const extracted = JSON.parse(clean);
     populateForm(extracted);
     showSection('section-verify');
