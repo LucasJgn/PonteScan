@@ -1,85 +1,85 @@
-from flask import Flask, request, jsonify
 import json
 import base64
 import io
 import openpyxl
+from http.server import BaseHTTPRequestHandler
  
-app = Flask(__name__)
+class handler(BaseHTTPRequestHandler):
  
-@app.route('/api/inject', methods=['POST', 'OPTIONS'])
-def inject():
-    if request.method == 'OPTIONS':
-        resp = app.make_default_options_response()
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-        return resp
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
  
-    try:
-        data = request.get_json()
-        file_b64 = data.get('fileBase64')
-        values = data.get('values', {})
-        target_age = data.get('age')
+    def do_POST(self):
+        length = int(self.headers.get('Content-Length', 0))
+        body = json.loads(self.rfile.read(length))
  
-        if not file_b64 or target_age is None:
-            return jsonify({'error': 'fileBase64 et age requis'}), 400
+        try:
+            file_b64 = body.get('fileBase64')
+            values = body.get('values', {})
+            target_age = body.get('age')
  
-        file_bytes = base64.b64decode(file_b64)
-        wb = openpyxl.load_workbook(io.BytesIO(file_bytes))
+            if not file_b64 or target_age is None:
+                self._respond(400, {'error': 'fileBase64 et age requis'})
+                return
  
-        sheet_name = None
-        for name in wb.sheetnames:
-            if 'fiche' in name.lower() or 'production' in name.lower():
-                sheet_name = name
-                break
-        if not sheet_name:
-            sheet_name = wb.sheetnames[0]
+            wb = openpyxl.load_workbook(io.BytesIO(base64.b64decode(file_b64)))
  
-        ws = wb[sheet_name]
+            sheet_name = next(
+                (n for n in wb.sheetnames if 'fiche' in n.lower() or 'production' in n.lower()),
+                wb.sheetnames[0]
+            )
+            ws = wb[sheet_name]
  
-        target_row = None
-        for row in ws.iter_rows():
-            cell_c = row[2].value
-            if cell_c is not None:
+            target_row = None
+            for row in ws.iter_rows():
                 try:
-                    if int(cell_c) == int(target_age):
+                    if row[2].value is not None and int(row[2].value) == int(target_age):
                         target_row = row[0].row
                         break
                 except (ValueError, TypeError):
                     continue
  
-        if target_row is None:
-            return jsonify({'error': f'Semaine age {target_age} introuvable'}), 404
+            if target_row is None:
+                self._respond(404, {'error': f'Age {target_age} introuvable'})
+                return
  
-        def set_cell(col, val):
-            if val is not None and val != '' and val != 0:
-                ws[f'{col}{target_row}'] = val
+            def sc(col, val):
+                if val is not None and val != '' and val != 0:
+                    ws[f'{col}{target_row}'] = val
  
-        set_cell('D', values.get('mortalite'))
-        set_cell('G', values.get('effectif_fin'))
-        for i, col in enumerate(['H','I','J','K','L','M','N']):
-            set_cell(col, values.get(f'ponte_j{i+1}'))
-        set_cell('P', values.get('ponte_hebdo'))
-        set_cell('W', values.get('declasses'))
-        set_cell('AM', values.get('conso_aliment_kg'))
-        set_cell('AY', values.get('conso_eau_L'))
-        if values.get('poids_oeufs'): set_cell('AB', values['poids_oeufs'])
-        if values.get('poids_vif'): set_cell('AV', values['poids_vif'])
-        if values.get('homogeneite'): set_cell('AW', values['homogeneite'])
-        if values.get('observations'): set_cell('BF', values['observations'])
+            sc('D', values.get('mortalite'))
+            sc('G', values.get('effectif_fin'))
+            for i, col in enumerate(['H','I','J','K','L','M','N']):
+                sc(col, values.get(f'ponte_j{i+1}'))
+            sc('P', values.get('ponte_hebdo'))
+            sc('W', values.get('declasses'))
+            sc('AM', values.get('conso_aliment_kg'))
+            sc('AY', values.get('conso_eau_L'))
+            if values.get('poids_oeufs'): sc('AB', values['poids_oeufs'])
+            if values.get('poids_vif'): sc('AV', values['poids_vif'])
+            if values.get('homogeneite'): sc('AW', values['homogeneite'])
+            if values.get('observations'): sc('BF', values['observations'])
  
-        output = io.BytesIO()
-        wb.save(output)
-        output.seek(0)
-        result_b64 = base64.b64encode(output.read()).decode('utf-8')
+            out = io.BytesIO()
+            wb.save(out)
+            out.seek(0)
  
-        resp = jsonify({'fileBase64': result_b64, 'rowFound': target_row, 'sheetName': sheet_name})
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
+            self._respond(200, {
+                'fileBase64': base64.b64encode(out.read()).decode(),
+                'rowFound': target_row,
+                'sheetName': sheet_name
+            })
  
-    except Exception as e:
-        resp = jsonify({'error': str(e)})
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp, 500
+        except Exception as e:
+            self._respond(500, {'error': str(e)})
  
-if __name__ == '__main__':
-    app.run()
+    def _respond(self, status, data):
+        self.send_response(status)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        self.wfile.write(json.dumps(data).encode())
