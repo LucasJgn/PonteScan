@@ -566,6 +566,19 @@
       <div>Vérifiez les valeurs avant de continuer. Modifiez directement dans les champs si besoin.</div>
     </div>
 
+    <!-- Bouton comparaison standard -->
+    <button class="btn btn-secondary" onclick="toggleComparison()" style="width:100%;justify-content:center;margin-bottom:16px;" id="btnComparison">
+      📊 Comparaison avec le standard Lohmann
+    </button>
+
+    <!-- Panneau comparaison -->
+    <div id="section-comparison" class="hidden fade-in" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px;">Standard LOHMANN Brown Rustic</div>
+        <div id="comparison-content"></div>
+      </div>
+    </div>
+
     <!-- Bouton semaines en attente -->
     <button class="btn btn-primary" onclick="addToWaiting()" style="margin-bottom:12px;">
       ➕ Ajouter au semaines en attente
@@ -1332,7 +1345,161 @@ async function confirmInject() {
   }
 }
 
-// ---- SEMAINES EN ATTENTE ----
+// ---- STANDARDS LOHMANN BROWN RUSTIC ----
+const LOHMANN_STANDARDS = {
+  17:{pct_ponte:null,oeufs_poule:null},
+  18:{pct_ponte:2.91,oeufs_poule:0.204},
+  19:{pct_ponte:12.88,oeufs_poule:1.105},
+  20:{pct_ponte:41.17,oeufs_poule:3.981},
+  21:{pct_ponte:71.5,oeufs_poule:8.971},
+  22:{pct_ponte:85.44,oeufs_poule:14.928},
+  23:{pct_ponte:91.01,oeufs_poule:21.267},
+  24:{pct_ponte:92.45,oeufs_poule:27.7},
+  25:{pct_ponte:93.12,oeufs_poule:34.173},
+  26:{pct_ponte:93.62,oeufs_poule:40.674},
+  27:{pct_ponte:93.76,oeufs_poule:47.178},
+  28:{pct_ponte:94.0,oeufs_poule:53.692},
+  29:{pct_ponte:94.01,oeufs_poule:60.2},
+  30:{pct_ponte:94.27,oeufs_poule:66.726},
+  31:{pct_ponte:94.25,oeufs_poule:73.244},
+  32:{pct_ponte:94.08,oeufs_poule:79.744},
+  33:{pct_ponte:94.26,oeufs_poule:86.25},
+  34:{pct_ponte:94.45,oeufs_poule:92.762},
+  35:{pct_ponte:94.51,oeufs_poule:99.272},
+  36:{pct_ponte:94.67,oeufs_poule:105.786},
+  37:{pct_ponte:94.49,oeufs_poule:112.281},
+  38:{pct_ponte:93.9,oeufs_poule:118.729},
+  39:{pct_ponte:94.2,oeufs_poule:125.191},
+  40:{pct_ponte:94.16,oeufs_poule:131.644},
+  41:{pct_ponte:94.04,oeufs_poule:138.082},
+  42:{pct_ponte:94.02,oeufs_poule:144.512},
+  43:{pct_ponte:93.93,oeufs_poule:150.929},
+  44:{pct_ponte:93.85,oeufs_poule:157.334},
+  45:{pct_ponte:93.66,oeufs_poule:163.72},
+  46:{pct_ponte:93.44,oeufs_poule:170.084},
+  47:{pct_ponte:93.28,oeufs_poule:176.431},
+  48:{pct_ponte:92.88,oeufs_poule:182.744},
+  49:{pct_ponte:92.78,oeufs_poule:189.044},
+  50:{pct_ponte:92.55,oeufs_poule:195.322},
+  51:{pct_ponte:92.28,oeufs_poule:201.575},
+  52:{pct_ponte:92.24,oeufs_poule:207.819},
+  53:{pct_ponte:91.85,oeufs_poule:214.03},
+  54:{pct_ponte:91.81,oeufs_poule:220.232},
+  55:{pct_ponte:91.66,oeufs_poule:226.417},
+  56:{pct_ponte:91.2,oeufs_poule:232.565},
+  57:{pct_ponte:91.06,oeufs_poule:238.697},
+  58:{pct_ponte:90.83,oeufs_poule:244.807},
+  59:{pct_ponte:90.6,oeufs_poule:250.895},
+  60:{pct_ponte:90.39,oeufs_poule:256.969},
+  61:{pct_ponte:89.99,oeufs_poule:263.016},
+  62:{pct_ponte:89.44,oeufs_poule:269.02},
+  63:{pct_ponte:89.05,oeufs_poule:274.992},
+  64:{pct_ponte:88.7,oeufs_poule:280.934},
+  65:{pct_ponte:88.77,oeufs_poule:286.868},
+  66:{pct_ponte:88.01,oeufs_poule:292.745},
+  67:{pct_ponte:87.42,oeufs_poule:298.571},
+  68:{pct_ponte:86.77,oeufs_poule:304.347},
+  69:{pct_ponte:86.57,oeufs_poule:310.098},
+  70:{pct_ponte:85.65,oeufs_poule:315.776},
+  71:{pct_ponte:84.67,oeufs_poule:321.383},
+  72:{pct_ponte:84.67,oeufs_poule:326.984},
+  73:{pct_ponte:84.06,oeufs_poule:332.533},
+  74:{pct_ponte:83.47,oeufs_poule:338.04},
+  75:{pct_ponte:82.86,oeufs_poule:343.504},
+  76:{pct_ponte:82.26,oeufs_poule:348.917},
+  77:{pct_ponte:81.66,oeufs_poule:354.279},
+  78:{pct_ponte:81.06,oeufs_poule:359.596},
+  79:{pct_ponte:80.46,oeufs_poule:364.868},
+  80:{pct_ponte:79.86,oeufs_poule:370.095},
+  81:{pct_ponte:79.28,oeufs_poule:375.278},
+  82:{pct_ponte:78.67,oeufs_poule:380.416},
+  83:{pct_ponte:78.08,oeufs_poule:385.507},
+  84:{pct_ponte:77.47,oeufs_poule:390.55},
+  85:{pct_ponte:76.87,oeufs_poule:395.546},
+  86:{pct_ponte:76.27,oeufs_poule:400.495},
+  87:{pct_ponte:75.67,oeufs_poule:405.397},
+  88:{pct_ponte:75.08,oeufs_poule:410.253},
+  89:{pct_ponte:74.47,oeufs_poule:415.062},
+  90:{pct_ponte:74.27,oeufs_poule:419.85}
+};
+
+function toggleComparison() {
+  const panel = document.getElementById('section-comparison');
+  if (!panel.classList.contains('hidden')) {
+    panel.classList.add('hidden');
+    return;
+  }
+
+  const age = getVal('f_age');
+  if (!age || !LOHMANN_STANDARDS[age]) {
+    panel.innerHTML = '<div class="data-cell"><div class="data-label">Info</div>Semaines d\'âge non renseigné ou hors standard (17-90 sem)</div>';
+    panel.classList.remove('hidden');
+    return;
+  }
+
+  const std = LOHMANN_STANDARDS[age];
+  const pctPonte = getVal('f_pct_ponte');
+  const oeufPoule = getVal('f_oeufs_poule');
+
+  let html = '';
+
+  // % Ponte
+  if (std.pct_ponte !== null && pctPonte !== null) {
+    const diff = pctPonte - std.pct_ponte;
+    const color = diff >= 0 ? 'var(--accent2)' : 'var(--error)';
+    const arrow = diff >= 0 ? '↑' : '↓';
+    html += `
+      <div style="margin-bottom:14px;">
+        <div class="data-label">% Ponte — Semaine ${age}</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+          <div style="flex:1;background:var(--surface2);border-radius:8px;padding:10px 14px;">
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:3px;">RÉEL</div>
+            <div style="font-size:22px;font-weight:800;">${pctPonte.toFixed(1)}%</div>
+          </div>
+          <div style="font-size:20px;color:${color};font-weight:800;">${arrow}</div>
+          <div style="flex:1;background:var(--surface2);border-radius:8px;padding:10px 14px;">
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:3px;">STANDARD</div>
+            <div style="font-size:22px;font-weight:800;color:var(--muted);">${std.pct_ponte.toFixed(1)}%</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:8px;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${color};">
+          ${diff >= 0 ? '+' : ''}${diff.toFixed(2)} pts vs standard
+        </div>
+      </div>`;
+  } else {
+    html += `<div class="info-box" style="margin-bottom:14px;"><span>ℹ️</span><div>% Ponte non renseigné — vérifiez les données</div></div>`;
+  }
+
+  // Écart cumulé œufs/poule
+  if (std.oeufs_poule !== null && oeufPoule !== null) {
+    const diff = oeufPoule - std.oeufs_poule;
+    const color = diff >= 0 ? 'var(--accent2)' : 'var(--error)';
+    const arrow = diff >= 0 ? '↑' : '↓';
+    html += `
+      <div style="margin-bottom:8px;">
+        <div class="data-label">Œufs / poule départ — Cumulé semaine ${age}</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+          <div style="flex:1;background:var(--surface2);border-radius:8px;padding:10px 14px;">
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:3px;">RÉEL</div>
+            <div style="font-size:22px;font-weight:800;">${oeufPoule.toFixed(1)}</div>
+          </div>
+          <div style="font-size:20px;color:${color};font-weight:800;">${arrow}</div>
+          <div style="flex:1;background:var(--surface2);border-radius:8px;padding:10px 14px;">
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:3px;">STANDARD</div>
+            <div style="font-size:22px;font-weight:800;color:var(--muted);">${std.oeufs_poule.toFixed(1)}</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:8px;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:${color};">
+          ${diff >= 0 ? '+' : ''}${diff.toFixed(2)} œufs/poule vs standard
+        </div>
+      </div>`;
+  } else {
+    html += `<div class="info-box"><span>ℹ️</span><div>Œufs/poule départ non renseigné</div></div>`;
+  }
+
+  document.getElementById('comparison-content').innerHTML = html;
+  panel.classList.remove('hidden');
+}
 const WAITING_KEY = 'pontescan_waiting';
 
 function getWaiting() {
