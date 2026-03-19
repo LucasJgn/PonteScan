@@ -323,6 +323,9 @@
  
       <div id="errorBox" class="error-box hidden"></div>
  
+      <div class="preview-wrapper" style="margin-bottom:20px;">
+        <img id="photoPreview2" src="" alt="Photo analysée" style="border-radius:10px;width:100%;">
+      </div>
  
       <div class="section-sep">Informations semaine</div>
       <div class="data-grid">
@@ -504,8 +507,10 @@ function rotatePhoto() {
     ctx.rotate((currentRotation * Math.PI) / 180);
     ctx.drawImage(tmpImg, -tmpImg.width/2, -tmpImg.height/2);
     const rotated = canvas.toDataURL('image/jpeg', 0.92);
-    currentPhotoBase64 = rotated.split(',')[1];
-    img.src = rotated;
+    compressImage(rotated).then(compressed => {
+      currentPhotoBase64 = compressed.split(',')[1];
+      img.src = compressed;
+    });
   };
   tmpImg.src = img.src;
 }
@@ -531,7 +536,26 @@ function buildTable() {
   });
 }
  
-// Corrige l'orientation EXIF d'une image et retourne un base64 redressé
+// Compression image avant envoi — 1500px max, qualité 0.85
+function compressImage(dataUrl) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const maxSize = 1500;
+      let w = img.width, h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.src = dataUrl;
+  });
+}
 function fixImageOrientation(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -565,14 +589,24 @@ function fixImageOrientation(file) {
           }
         } catch(e) { orientation = 1; }
  
-        // Appliquer la rotation sur canvas
+        // Compression : max 1500px de large, qualité 0.75
+        const MAX_SIZE = 1500;
+        let cw = orientation > 4 ? h : w;
+        let ch = orientation > 4 ? w : h;
+        if (cw > MAX_SIZE) {
+          const ratio = MAX_SIZE / cw;
+          cw = MAX_SIZE;
+          ch = Math.round(ch * ratio);
+        }
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        const w = img.width, h = img.height;
+        canvas.width = cw;
+        canvas.height = ch;
  
-        if (orientation > 4) { canvas.width = h; canvas.height = w; }
-        else { canvas.width = w; canvas.height = h; }
+        // Calculer le scale
+        const scale = cw / (orientation > 4 ? h : w);
  
+        ctx.scale(scale, scale);
         switch(orientation) {
           case 2: ctx.transform(-1,0,0,1,w,0); break;
           case 3: ctx.transform(-1,0,0,-1,w,h); break;
@@ -583,7 +617,7 @@ function fixImageOrientation(file) {
           case 8: ctx.transform(0,-1,1,0,0,w); break;
         }
         ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL('image/jpeg', 0.92));
+        resolve(canvas.toDataURL('image/jpeg', 0.75));
       };
       img.src = URL.createObjectURL(file);
     };
@@ -597,8 +631,9 @@ document.getElementById('fileInput').addEventListener('change', async function(e
   currentPhotoMime = 'image/jpeg';
   currentRotation = 0;
   const corrected = await fixImageOrientation(file);
-  currentPhotoBase64 = corrected.split(',')[1];
-  document.getElementById('photoPreview').src = corrected;
+  const compressed = await compressImage(corrected);
+  currentPhotoBase64 = compressed.split(',')[1];
+  document.getElementById('photoPreview').src = compressed;
   showSection('section-preview');
 });
  
@@ -613,8 +648,9 @@ uploadZone.addEventListener('drop', async e => {
   currentPhotoMime = 'image/jpeg';
   currentRotation = 0;
   const corrected = await fixImageOrientation(file);
-  currentPhotoBase64 = corrected.split(',')[1];
-  document.getElementById('photoPreview').src = corrected;
+  const compressed = await compressImage(corrected);
+  currentPhotoBase64 = compressed.split(',')[1];
+  document.getElementById('photoPreview').src = compressed;
   showSection('section-preview');
 });
  
@@ -708,6 +744,7 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
     if (!match) throw new Error('Pas de JSON trouvé dans la réponse');
     const extracted = JSON.parse(match[0]);
     populateForm(extracted);
+    document.getElementById('photoPreview2').src = document.getElementById('photoPreview').src;
     showSection('section-verify');
     updateSteps(3);
  
@@ -715,6 +752,7 @@ Retourne UNIQUEMENT le JSON, sans texte avant ou après.`;
     console.error('Erreur analyse:', err);
     document.getElementById('errorBox').textContent = '⚠️ Extraction incomplète (' + err.message + '). Vérifiez et complétez les champs manuellement.';
     document.getElementById('errorBox').classList.remove('hidden');
+    document.getElementById('photoPreview2').src = document.getElementById('photoPreview').src;
     showSection('section-verify');
     updateSteps(3);
   }
