@@ -410,16 +410,50 @@
     <div class="card">
       <div class="card-title">Étape 1 / 3</div>
       <div class="card-heading">Photo du cahier</div>
-      <div class="upload-zone" id="uploadZone">
-        <input type="file" id="fileInput" accept="image/*">
-        <span class="upload-icon">📷</span>
-        <div class="upload-text">Prendre ou importer une photo</div>
-        <div class="upload-hint">JPG, PNG · Fiche Huttepain remplie</div>
+
+      <!-- Caméra en direct -->
+      <div id="camera-wrapper" style="position:relative;border-radius:12px;overflow:hidden;background:#000;margin-bottom:12px;display:none;">
+        <video id="cameraVideo" autoplay playsinline style="width:100%;display:block;border-radius:12px;"></video>
+        <!-- Grille de cadrage en direct -->
+        <div style="position:absolute;inset:0;pointer-events:none;
+          background-image:
+            linear-gradient(rgba(184,240,88,0.4) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(184,240,88,0.4) 1px, transparent 1px);
+          background-size: 33.33% 33.33%, 33.33% 33.33%;">
+          <div style="position:absolute;top:8px;left:8px;width:28px;height:28px;border-top:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:3px 0 0 0;"></div>
+          <div style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-top:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 3px 0 0;"></div>
+          <div style="position:absolute;bottom:8px;left:8px;width:28px;height:28px;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:0 0 0 3px;"></div>
+          <div style="position:absolute;bottom:8px;right:8px;width:28px;height:28px;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 0 3px 0;"></div>
+        </div>
+        <canvas id="cameraCanvas" style="display:none;"></canvas>
+      </div>
+
+      <!-- Boutons caméra -->
+      <div id="camera-controls" style="display:none;margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="takePicture()" style="margin-bottom:8px;">
+          📸 Prendre la photo
+        </button>
+        <button class="btn btn-ghost" onclick="stopCamera()" style="width:100%;justify-content:center;">
+          ✕ Fermer la caméra
+        </button>
+      </div>
+
+      <!-- Boutons d'accès -->
+      <div id="upload-buttons">
+        <button class="btn btn-primary" onclick="startCamera()" style="margin-bottom:10px;">
+          📷 Ouvrir la caméra
+        </button>
+        <div class="upload-zone" id="uploadZone" style="padding:20px;">
+          <input type="file" id="fileInput" accept="image/*">
+          <span class="upload-icon" style="font-size:28px;">🖼️</span>
+          <div class="upload-text" style="font-size:14px;">Importer depuis la galerie</div>
+          <div class="upload-hint">JPG, PNG · Fiche Huttepain remplie</div>
+        </div>
       </div>
     </div>
     <div class="info-box">
       <span>ℹ️</span>
-      <div>Photographiez la fiche hebdomadaire remplie. L'IA va extraire toutes les données automatiquement.</div>
+      <div>Alignez les bords de la fiche avec la grille pour une meilleure lecture.</div>
     </div>
   </div>
 
@@ -1181,6 +1215,49 @@ function generateExcel() {
   document.getElementById('step3').className = 'step done';
 }
 
+// ---- CAMÉRA ----
+let cameraStream = null;
+
+async function startCamera() {
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+    });
+    const video = document.getElementById('cameraVideo');
+    video.srcObject = cameraStream;
+    document.getElementById('camera-wrapper').style.display = 'block';
+    document.getElementById('camera-controls').style.display = 'block';
+    document.getElementById('upload-buttons').style.display = 'none';
+  } catch(err) {
+    alert('Impossible d\'accéder à la caméra. Utilisez l\'import galerie.');
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  document.getElementById('camera-wrapper').style.display = 'none';
+  document.getElementById('camera-controls').style.display = 'none';
+  document.getElementById('upload-buttons').style.display = 'block';
+}
+
+async function takePicture() {
+  const video = document.getElementById('cameraVideo');
+  const canvas = document.getElementById('cameraCanvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  stopCamera();
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+  currentPhotoBase64 = dataUrl.split(',')[1];
+  currentPhotoMime = 'image/jpeg';
+  currentRotation = 0;
+  document.getElementById('photoPreview').src = dataUrl;
+  showSection('section-preview');
+}
+
 // ---- HISTORIQUE ----
 const HISTORY_KEY = 'pontescan_history';
 const MAX_HISTORY = 10;
@@ -1229,6 +1306,7 @@ function startNewScan() {
 }
 
 function goHome() {
+  if (cameraStream) stopCamera();
   currentPhotoBase64 = null;
   lohmannWorkbook = null;
   lohmannFilename = null;
