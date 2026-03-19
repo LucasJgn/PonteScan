@@ -108,7 +108,7 @@ def inject_values_into_sheet(sheet_xml, row_num, col_values):
         # Remove formula if present
         f_el = target_cell.find(f'{{{ns}}}f')
         if f_el is not None:
-            target_row_el.remove(f_el)
+            target_cell.remove(f_el)
     
     return ET.tostring(root, encoding='unicode')
  
